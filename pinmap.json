@@ -1,0 +1,154 @@
+
+{
+    "ADC_pins_map": {
+        "ADC1": "A0",
+        "ADC2": "A3",
+        "ADC3": "A5",
+        "ADC4": "A6"
+    },
+    "DIO_pins_map": {
+        "DIO1": "D2",
+        "DIO2": "D10",
+        "DIO3": "D11",
+        "DIO4": "D12",
+        "DIO5": "D13",
+        "DIO6": "D14",
+        "DIO7": "D15",
+        "DIO8": "C0",
+        "DIO9": "C2",
+        "DIO10": "C3",
+        "DIO11": "B0",
+        "DIO12": "B1",
+        "DIO13": "B2",
+        "DIO14": "B7",
+        "DIO15": "B10"
+    },
+    "DO_pins_map": {
+        "DO1": "E9",
+        "DO2": "E11",
+        "DO3": "E13",
+        "DO4": "E14",
+        "DO5": "E8",
+        "DO6": "E10",
+        "DO7": "E12",
+        "DO8": "E15",
+        "DO9": "C6",
+        "DO10": "C7",
+        "DO11": "C8",
+        "DO12": "C9",
+        "DO13": "C10",
+        "DO14": "C12",
+        "DO15": "C11",
+        "DO16": "C13"
+    },
+    "DI_pins_map": {
+        "DI1": "G0",
+        "DI2": "G1",
+        "DI3": "G2",
+        "DI4": "G3",
+        "DI5": "G4",
+        "DI6": "G5",
+        "DI7": "G6",
+        "DI8": "G7",
+        "DI9": "G8",
+        "DI10": "G9",
+        "DI11": "G10",
+        "DI12": "G12",
+        "DI13": "G14",
+        "DI14": "G15",
+        "DI15": "F2",
+        "DI16": "F3"
+    },
+    "DI_PU_pins_map": {
+        "DI1_PU": "F4",
+        "DI2_PU": "F5",
+        "DI3_PU": "F6",
+        "DI4_PU": "F7",
+        "DI5_PU": "F8",
+        "DI6_PU": "F9",
+        "DI7_PU": "F10",
+        "DI8_PU": "F11",
+        "DI9_PU": "F12",
+        "DI10_PU": "F13",
+        "DI11_PU": "F14",
+        "DI12_PU": "F15",
+        "DI13_PU": "E4",
+        "DI14_PU": "E5",
+        "DI15_PU": "E6",
+        "DI16_PU": "E7"
+    },
+    "ENCODER": {
+        "CLK": "B11",
+        "DT": "B14",
+        "SW": "B15"
+    },
+    "FUNC_IO": {
+        "ESC_SW": "A15",
+        "STATUS_LED": "A8"
+    },
+    "USB": {
+        "VBUS": "A9",
+        "ID": "A10",
+        "DM": "A11",
+        "DP": "A12"
+    },
+    "ETH": {
+        "RMII_REF_CLK": "A1",
+        "MDIO": "A2",
+        "RMII_CRS_DV": "A7",
+        "RMII_TXD1": "B13",
+        "MDC": "C1",
+        "RMII_RXD0": "C4",
+        "RMII_RXD1": "C5",
+        "RMII_TX_EN": "G11",
+        "RMII_TXD0": "G13"
+    },
+    "SPI3": {
+        "NSS": "A4",
+        "SCK": "B3",
+        "MISO": "B4",
+        "MOSI": "B5"
+    },
+    "I2C1": {
+        "SCL": "B8",
+        "SDA": "B9"
+    },
+    "I2C2": {
+        "SCL": "F1",
+        "SDA": "F0"
+    },
+    "UART2": {
+        "CTS": "D3",
+        "RTS": "D4",
+        "TX": "D5",
+        "RX": "D6"
+    },
+    "UART3": {
+        "TX": "D8",
+        "RX": "D9",
+        "EN": "D7"
+    },
+    "UART5": {
+        "TX": "B6",
+        "RX": "B12",
+        "DIR": "E3"
+    },
+    "UART8": {
+        "TX": "E1",
+        "RX": "E0",
+        "DIR": "E2"
+    },
+    "CAN1": {
+        "RX": "D0",
+        "TX": "D1"
+    },
+    "SWIO": {
+        "SWDIO": "A13",
+        "SWCLK": "A14"
+    },
+    "RCC_OSC32": {
+        "IN": "C14",
+        "OUT": "C15"
+    }
+}
+

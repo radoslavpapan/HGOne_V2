@@ -1,0 +1,393 @@
+{
+    "device": {
+        "dev_name": "HGOne",
+        "wifi_enable": false,
+        "address": "0xA1"
+    },
+    "eth": {
+        "enable": false,
+        "ip": "DHCP",
+        "subnet": "",
+        "gateway": "",
+        "dns": ""
+    },
+    "uart2": {
+        "enable": false,
+        "baud": 9600
+    },
+    "uart5": {
+        "enable": false,
+        "baud": 9600
+    },
+    "can1": {
+        "enable": false,
+        "bitr": 1000000
+    },
+    "timer1": {
+        "enable": false,
+        "freq": 50
+    },
+    "timer3": {
+        "enable": false,
+        "freq": 50
+    },
+    "MQTT": {
+        "enable": true,
+        "server": "192.168.0.20",
+        "port": 1883,
+        "ssl_enable": false,
+        "username": "",
+        "password": ""
+    },
+    "PCBTemp": {
+        "name": "PCBTemp",
+        "mqtt": {
+            "publish": true,
+            "interval": 5
+        }
+    },
+    "DO": {
+        "DO1": {
+            "name": "WaterPump",
+            "init_value": false,
+            "pwm": { "enable": false, "duty": 50 },
+            "mqtt": { "subscribe": true, "publish": true, "interval": 2 }
+        },
+        "DO2": {
+            "name": "WaterBoil",
+            "init_value": false,
+            "pwm": { "enable": false, "duty": 50 },
+            "mqtt": { "subscribe": true, "publish": true, "interval": 2 }
+        },
+        "DO3": {
+            "name": "GgardenLight",
+            "init_value": false,
+            "pwm": { "enable": false, "duty": 50 },
+            "mqtt": { "subscribe": true, "publish": true, "interval": 2 }
+        },
+        "DO4": {
+            "name": "GardenPool",
+            "init_value": false,
+            "pwm": { "enable": false, "duty": 50 },
+            "mqtt": { "subscribe": true, "publish": true, "interval": 2 }
+        },
+        "DO5": {
+            "name": "DO5",
+            "init_value": false,
+            "mqtt": { "subscribe": false, "publish": false, "interval": 2 }
+        },
+        "DO6": {
+            "name": "DO6",
+            "init_value": false,
+            "mqtt": { "subscribe": false, "publish": false, "interval": 2 }
+        },
+        "DO7": {
+            "name": "DO7",
+            "init_value": false,
+            "mqtt": { "subscribe": false, "publish": false, "interval": 2 }
+        },
+        "DO8": {
+            "name": "DO8",
+            "init_value": false,
+            "mqtt": { "subscribe": false, "publish": false, "interval": 2 }
+        },
+        "DO9": {
+            "name": "GarrageGate",
+            "init_value": false,
+            "pwm": { "enable": false, "duty": 50 },
+            "mqtt": { "subscribe": true, "publish": true, "interval": 2 }
+        },
+        "DO10": {
+            "name": "MainGate",
+            "init_value": false,
+            "pwm": { "enable": false, "duty": 50 },
+            "mqtt": { "subscribe": true, "publish": true, "interval": 2 }
+        },
+        "DO11": {
+            "name": "DO11",
+            "init_value": false,
+            "pwm": { "enable": false, "duty": 50 },
+            "mqtt": { "subscribe": false, "publish": false, "interval": 2 }
+        },
+        "DO12": {
+            "name": "IrrigRound5",
+            "init_value": false,
+            "pwm": { "enable": false, "duty": 50 },
+            "mqtt": { "subscribe": true, "publish": true, "interval": 2 }
+        },
+        "DO13": {
+            "name": "IrrigRound4",
+            "init_value": false,
+            "mqtt": { "subscribe": true, "publish": true, "interval": 2 }
+        },
+        "DO14": {
+            "name": "IrrigRound3",
+            "init_value": false,
+            "mqtt": { "subscribe": true, "publish": true, "interval": 2 }
+        },
+        "DO15": {
+            "name": "IrrigRound2",
+            "init_value": false,
+            "mqtt": { "subscribe": true, "publish": true, "interval": 2 }
+        },
+        "DO16": {
+            "name": "IrrigRound1",
+            "init_value": false,
+            "mqtt": { "subscribe": true, "publish": true, "interval": 2 }
+        }
+    },
+    "DI": {
+        "DI1": {
+            "name": "WindSpeed",
+            "pull_up_enable": true,
+            "irq": {
+                "enable": true,
+                "edge": "FALLING",
+                "meas_frequency": true,
+                "link_to_out": "",
+                "link_to_out_type": "",
+            },
+            "map": { "enable": true, "freq_min": 0, "freq_max": 680, "out_min": 0, "out_max": 59.5, "unit": "m/s" },
+            "mqtt": { "publish": true, "interval": 2 }
+        },
+        "DI2": {
+            "name": "GardenLightSwitch",
+            "pull_up_enable": true,
+            "irq": {
+                "enable": true,
+                "edge": "",
+                "meas_frequency": false,
+                "link_to_out": "DO3",
+                "link_to_out_type": "reverse"
+            },
+            "map": { "enable": false, "freq_min": 0, "freq_max": 0, "out_min": 0, "out_max": 0, "unit": "" },
+            "mqtt": { "publish": true, "interval": 5 }
+        },
+        "DI3": {
+            "name": "DI3",
+            "pull_up_enable": true,
+            "irq": {
+                "enable": false,
+                "edge": "",
+                "meas_frequency": false,
+                "link_to_out": "",
+                "link_to_out_type": "direct"
+            },
+            "map": { "enable": false, "freq_min": 0, "freq_max": 0, "out_min": 0, "out_max": 0, "unit": "" },
+            "mqtt": { "publish": false, "interval": 5 }
+        },
+        "DI4": {
+            "name": "DI4",
+            "pull_up_enable": false,
+            "irq": {
+                "enable": false,
+                "edge": "",
+                "meas_frequency": false,
+                "link_to_out": "",
+                "link_to_out_type": "toggle"
+            },
+            "map": { "enable": false, "freq_min": 0, "freq_max": 0, "out_min": 0, "out_max": 0, "unit": "" },
+            "mqtt": { "publish": false, "interval": 5 }
+        },
+        "DI5": {
+            "name": "DI5",
+            "pull_up_enable": false,
+            "irq": {
+                "enable": false,
+                "edge": "",
+                "meas_frequency": false,
+                "link_to_out": "",
+                "link_to_out_type": ""
+            },
+            "map": { "enable": false, "freq_min": 0, "freq_max": 0, "out_min": 0, "out_max": 0, "unit": "" },
+            "mqtt": { "publish": false, "interval": 5 }
+        },
+        "DI6": {
+            "name": "DI6",
+            "pull_up_enable": false,
+            "irq": {
+                "enable": false,
+                "edge": "",
+                "meas_frequency": false,
+                "link_to_out": "",
+                "link_to_out_type": ""
+            },
+            "map": { "enable": false, "freq_min": 0, "freq_max": 0, "out_min": 0, "out_max": 0, "unit": "" },
+            "mqtt": { "publish": false, "interval": 5 }
+        },
+        "DI7": {
+            "name": "DI7",
+            "pull_up_enable": false,
+            "irq": {
+                "enable": false,
+                "edge": "",
+                "meas_frequency": false,
+                "link_to_out": "",
+                "link_to_out_type": ""
+            },
+            "map": { "enable": false, "freq_min": 0, "freq_max": 0, "out_min": 0, "out_max": 0, "unit": "" },
+            "mqtt": { "publish": false, "interval": 5 }
+        },
+        "DI8": {
+            "name": "DI8",
+            "pull_up_enable": false,
+            "irq": {
+                "enable": false,
+                "edge": "",
+                "meas_frequency": false,
+                "link_to_out": "",
+                "link_to_out_type": ""
+            },
+            "map": { "enable": false, "freq_min": 0, "freq_max": 0, "out_min": 0, "out_max": 0, "unit": "" },
+            "mqtt": { "publish": false, "interval": 5 }
+        },
+        "DI9": {
+            "name": "DI9",
+            "pull_up_enable": false,
+            "irq": {
+                "enable": false,
+                "edge": "",
+                "meas_frequency": false,
+                "link_to_out": "",
+                "link_to_out_type": ""
+            },
+            "map": { "enable": false, "freq_min": 0, "freq_max": 0, "out_min": 0, "out_max": 0, "unit": "" },
+            "mqtt": { "publish": false, "interval": 5 }
+        },
+        "DI10": {
+            "name": "DI10",
+            "pull_up_enable": false,
+            "irq": {
+                "enable": false,
+                "edge": "",
+                "meas_frequency": false,
+                "link_to_out": "",
+                "link_to_out_type": ""
+            },
+            "map": { "enable": false, "freq_min": 0, "freq_max": 0, "out_min": 0, "out_max": 0, "unit": "" },
+            "mqtt": { "publish": false, "interval": 5 }
+        },
+        "DI11": {
+            "name": "DI11",
+            "pull_up_enable": false,
+            "irq": {
+                "enable": false,
+                "edge": "",
+                "meas_frequency": false,
+                "link_to_out": "",
+                "link_to_out_type": ""
+            },
+            "map": { "enable": false, "freq_min": 0, "freq_max": 0, "out_min": 0, "out_max": 0, "unit": "" },
+            "mqtt": { "publish": false, "interval": 5 }
+        },
+        "DI12": {
+            "name": "DI12",
+            "pull_up_enable": false,
+            "irq": {
+                "enable": false,
+                "edge": "",
+                "meas_frequency": false,
+                "link_to_out": "",
+                "link_to_out_type": ""
+            },
+            "map": { "enable": false, "freq_min": 0, "freq_max": 0, "out_min": 0, "out_max": 0, "unit": "" },
+            "mqtt": { "publish": false, "interval": 5 }
+        },
+        "DI13": {
+            "name": "DI13",
+            "pull_up_enable": false,
+            "irq": {
+                "enable": false,
+                "edge": "",
+                "meas_frequency": false,
+                "link_to_out": "",
+                "link_to_out_type": ""
+            },
+            "map": { "enable": false, "freq_min": 0, "freq_max": 0, "out_min": 0, "out_max": 0, "unit": "" },
+            "mqtt": { "publish": false, "interval": 5 }
+        },
+        "DI14": {
+            "name": "DI14",
+            "pull_up_enable": false,
+            "irq": {
+                "enable": false,
+                "edge": "",
+                "meas_frequency": false,
+                "link_to_out": "",
+                "link_to_out_type": ""
+            },
+            "map": { "enable": false, "freq_min": 0, "freq_max": 0, "out_min": 0, "out_max": 0, "unit": "" },
+            "mqtt": { "publish": false, "interval": 5 }
+        },
+        "DI15": {
+            "name": "DI15",
+            "pull_up_enable": false,
+            "irq": {
+                "enable": false,
+                "edge": "",
+                "meas_frequency": false,
+                "link_to_out": "",
+                "link_to_out_type": ""
+            },
+            "map": { "enable": false, "freq_min": 0, "freq_max": 0, "out_min": 0, "out_max": 0, "unit": "" },
+            "mqtt": { "publish": false, "interval": 5 }
+        },
+        "DI16": {
+            "name": "DI16",
+            "pull_up_enable": false,
+            "irq": {
+                "enable": false,
+                "edge": "",
+                "meas_frequency": false,
+                "link_to_out": "",
+                "link_to_out_type": ""
+            },
+            "map": { "enable": false, "freq_min": 0, "freq_max": 0, "out_min": 0, "out_max": 0, "unit": "" },
+            "mqtt": { "publish": false, "interval": 5 }
+        }
+    },
+    "AIInt": {
+        "AI1": {
+            "name": "OutdoorLight",
+            "map": { "enable": true, "raw_min": 0, "raw_max": 4096, "out_min": 0, "out_max": 100, "unit": "%" },
+            "mqtt": { "publish": true, "interval": 15 }
+        },
+        "AI2": {
+            "name": "AI2",
+            "map": { "enable": false, "raw_min": 0, "raw_max": 4096, "out_min": 0, "out_max": 3.3, "unit": "V" },
+            "mqtt": { "publish": false, "interval": 2 }
+        },
+        "AI3": {
+            "name": "AI3",
+            "map": { "enable": false, "raw_min": 0, "raw_max": 4096, "out_min": 0, "out_max": 3.3, "unit": "V" },
+            "mqtt": { "publish": false, "interval": 2 }
+        },
+        "AI4": {
+            "name": "AI4",
+            "map": { "enable": false, "raw_min": 0, "raw_max": 4096, "out_min": 0, "out_max": 3.3, "unit": "V" },
+            "mqtt": { "publish": false, "interval": 2 }
+        }
+    },
+    "AIExt": {
+        "AI1": {
+            "name": "SoilHum",
+            "map": { "enable": true, "raw_min": 0, "raw_max": 65535, "out_min": 0, "out_max": 5, "unit": "V" },
+            "mqtt": { "publish": true, "interval": 15 }
+        },
+        "AI2": {
+            "name": "AI2",
+            "map": { "enable": false, "raw_min": 0, "raw_max": 65535, "out_min": 0, "out_max": 5000, "unit": "mV" },
+            "mqtt": { "publish": false, "interval": 2 }
+        },
+        "AI3": {
+            "name": "AI3",
+            "map": { "enable": false, "raw_min": 0, "raw_max": 65535, "out_min": 0, "out_max": 5000, "unit": "mV" },
+            "mqtt": { "publish": false, "interval": 2 }
+        },
+        "AI4": {
+            "name": "AI4",
+            "map": { "enable": false, "raw_min": 0, "raw_max": 65535, "out_min": 0, "out_max": 5000, "unit": "mV" },
+            "mqtt": { "publish": false, "interval": 2 }
+        }
+    }
+}
