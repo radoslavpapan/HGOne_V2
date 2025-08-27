@@ -6,6 +6,30 @@ import uasyncio as asyncio
 from drivers.lm75 import LM75
 from drivers.ads1115 import ADS1115
 from drivers.sdcard import SDCard
+from drivers.sh1106 import SH1106_I2C
+
+def boot_print(text):
+    print(text)
+    try:
+        boot_disp.println(text)
+    except:
+        pass
+    if '[ERR]' in text:
+        utime.sleep(5)
+################################################################
+# OLED Display Init
+boot_disp = None
+def Disp_Init():
+    global boot_disp
+    try:
+        boot_disp = SH1106_I2C(128, 64, i2c1, rotate=180)
+        if boot_disp.begin():
+            boot_print("[OK] Display Init")
+            boot_disp.init_display()
+        else:
+            raise TypeError("Disp init Fail")
+    except Exception as e:
+        boot_print("[ERR] Display Init:", e)
 
 ################################################################
 # Load json files
@@ -15,9 +39,9 @@ def PinMap_Init():
     try:
         with open ('/flash/pinmap.json', 'r') as f:
             pinmap_data = ujson.load(f)
-            print("[OK] Load pinmap_data")
+            boot_print("[OK] Load pinmap_data")
     except Exception as e:
-        print("[ERR] Load pinmap_data: ", e)
+        boot_print("[ERR] Load pinmap_data: ", e)
 
 ################################################################
 # SPI3 for uSD
@@ -30,9 +54,9 @@ def SPI3_Init():
         spi3 = SPI(3, baudrate=1_000_000)  # clk = B3; miso = B4; mosi = B5
         spi3_ss = Pin(pinmap_data['SPI3']['NSS'], Pin.OUT_PP, value=True)
         spi3_lock = asyncio.Lock()
-        print("[OK] SPI3 Init")
+        boot_print("[OK] SPI3 Init")
     except Exception as e:
-        print("[ERR] SPI3 Init:", e)
+        boot_print("[ERR] SPI3 Init:", e)
 
 ################################################################
 # I2C1 for OLED display and PCB temp sensor (LM75)
@@ -43,9 +67,9 @@ def I2C1_Init():
     try:
         i2c1 = I2C(1, freq=100000)			# sck = B8; sda = B9
         i2c1_lock = asyncio.Lock()
-        print("[OK] I2C1 Init")
+        boot_print("[OK] I2C1 Init")
     except Exception as e:
-        print("[ERR] I2C1 Init:", e)
+        boot_print("[ERR] I2C1 Init:", e)
 
 ################################################################
 # I2C2 for external ADC (ADS1115)
@@ -56,9 +80,9 @@ def I2C2_Init():
     try:
         i2c2 = I2C(2, freq=100000)	        # sck = F1; sda = F0
         i2c2_lock = asyncio.Lock()
-        print("[OK] I2C2 Init")
+        boot_print("[OK] I2C2 Init")
     except Exception as e:
-        print("[ERR] I2C2 Init:", e)
+        boot_print("[ERR] I2C2 Init:", e)
 
 ################################################################
 # Status LED Init
@@ -67,9 +91,9 @@ def StatusLED_Init():
     global status_led
     try:
         status_led = Pin(pinmap_data['FUNC_IO']['STATUS_LED'], Pin.OUT_PP, value=False)
-        print("[OK] Status LED Init")
+        boot_print("[OK] Status LED Init")
     except Exception as e:
-        print("[ERR] Status LED Init:", e)
+        boot_print("[ERR] Status LED Init:", e)
 
 ################################################################
 # UART3 for WIFI modul ESP-01S
@@ -82,9 +106,9 @@ def UART3_Init():
         uart3 = UART(3, baudrate=115200, bits=8, parity=None, stop=1)		# tx = D8; rx = D9
         uart3_en = Pin(pinmap_data['UART3']['EN'], Pin.OUT_PP, value=False)
         uart3_lock = asyncio.Lock()
-        print("[OK] UART3 Init")
+        boot_print("[OK] UART3 Init")
     except Exception as e:
-        print("[ERR] UART3 Init:", e)
+        boot_print("[ERR] UART3 Init:", e)
 
 ################################################################
 # UART8 for internal RS485
@@ -97,9 +121,9 @@ def UART8_Init():
         uart8 = UART(8, baudrate=115200)    	# tx = E1; rx = E0
         uart8_dir = Pin(pinmap_data['UART8']['DIR'], Pin.OUT_PP, value=False)
         uart8_lock = asyncio.Lock()
-        print("[OK] UART8 Init")
+        boot_print("[OK] UART8 Init")
     except Exception as e:
-        print("[ERR] UART8 Init:", e)
+        boot_print("[ERR] UART8 Init:", e)
 
 ################################################################
 # UART2 not used
@@ -111,9 +135,9 @@ def UART2_Init(config_data):
         if config_data['uart2']['enable']:
             uart2_lock = asyncio.Lock()
             uart2 = UART(2, baudrate=config_data['uart2']['baud'])  		# tx = D5; rx = D6; cts = D3; rts = D4
-            print("[OK] UART2 Init")
+            boot_print("[OK] UART2 Init")
     except Exception as e:
-        print("[ERR] UART2 Init:", e)
+        boot_print("[ERR] UART2 Init:", e)
 
 ################################################################
 # UART5 for external RS485
@@ -127,9 +151,9 @@ def UART5_Init(config_data):
             uart5 = UART(5, baudrate=config_data['uart5']['baud'])  		# tx = B6; rx = B12
             uart5_dir = Pin(pinmap_data['UART5']['DIR'], Pin.OUT_PP, value=False)
             uart5_lock = asyncio.Lock()
-            print("[OK] UART5 Init")
+            boot_print("[OK] UART5 Init")
     except Exception as e:
-        print("[ERR] UART5 Init:", e)
+        boot_print("[ERR] UART5 Init:", e)
 
 ################################################################
 # CAN1 for external CAN
@@ -142,9 +166,9 @@ def CAN1_Init(config_data):
             bitrate = config_data['can1']['bitr']
             can1 = CAN(1, CAN.LOOPBACK)				# CAN_tx = D1; CAN_rx = D0
             can1_lock = asyncio.Lock()
-            print("[OK] CAN1 Init")
+            boot_print("[OK] CAN1 Init")
     except Exception as e:
-        print("[ERR] CAN1 Init:", e)
+        boot_print("[ERR] CAN1 Init:", e)
 
 ################################################################
 # WDT Init
@@ -153,9 +177,9 @@ def WDT_Init():
     global wdt
     try:
         wdt = WDT(timeout=10000)
-        print("[OK] WDT Init")
+        boot_print("[OK] WDT Init")
     except Exception as e:
-        print("[ERR] WDT Init:", e)
+        boot_print("[ERR] WDT Init:", e)
 
 ################################################################
 # DIO Init
@@ -168,9 +192,9 @@ def DIO_Init():
                 "pin": Pin(pin_name),
                 "lock": asyncio.Lock()
             }
-        print("[OK] DIO Init")
+        boot_print("[OK] DIO Init")
     except Exception as e:
-        print("[ERR] DIO Init:", e)
+        boot_print("[ERR] DIO Init:", e)
 
 ################################################################ 
 # TIM1 for DO PWM (DO1 - DO4)
@@ -180,9 +204,9 @@ def Timer1_Init(config_data):
     try:
         if config_data['timer1']['enable']:
             tim1 = Timer(1, freq=config_data['timer1']['freq'])
-            print("[OK] Timer1 Init")
+            boot_print("[OK] Timer1 Init")
     except Exception as e:
-        print("[ERR] Timer1 Init:", e)
+        boot_print("[ERR] Timer1 Init:", e)
 
 ################################################################
 # TIM3 for DO PWM (DO9 - DO12)
@@ -192,9 +216,9 @@ def Timer3_Init(config_data):
     try:
         if config_data['timer3']['enable']:
             tim3 = Timer(3, freq=config_data['timer3']['freq'])
-            print("[OK] Timer3 Init")
+            boot_print("[OK] Timer3 Init")
     except Exception as e:
-        print("[ERR] Timer3 Init:", e)
+        boot_print("[ERR] Timer3 Init:", e)
 
 ################################################################
 # DO Init
@@ -234,10 +258,10 @@ class SafeDO:
             elif (5 <= self.pin_id <= 8) or (13 <= self.pin_id <= 16):
                 self.pin = Pin(pin_name, Pin.OUT_PP, value=init_value)
 
-            print(f"[OK] DO{self.pin_id} Setup")
+            boot_print(f"[OK] DO{self.pin_id} Setup")
 
         except Exception as e:
-            print(f"[ERR] DO{self.pin_id} Setup:", e)
+            boot_print(f"[ERR] DO{self.pin_id} Setup:", e)
             self.pin = None
 
     async def on(self):
@@ -248,7 +272,7 @@ class SafeDO:
             else:
                 raise TypeError("Incorrect instance")
         except Exception as e:
-            print("[ERR] DO On:", e)
+            boot_print("[ERR] DO On:", e)
 
     async def off(self):
         try:
@@ -258,7 +282,7 @@ class SafeDO:
             else:
                 raise TypeError("Incorrect instance")
         except Exception as e:
-            print("[ERR] DO Off:", e)
+            boot_print("[ERR] DO Off:", e)
 
     async def duty(self, value: int):
         try:
@@ -268,7 +292,7 @@ class SafeDO:
             else:
                 raise TypeError("Incorrect instance")
         except Exception as e:
-            print("[ERR] DO Duty:", e)
+            boot_print("[ERR] DO Duty:", e)
 
     async def get(self):
         try:
@@ -278,7 +302,7 @@ class SafeDO:
                 else:
                     return self.pin.pulse_width_percent()
         except Exception as e:
-            print("[ERR] DO Get:", e)
+            boot_print("[ERR] DO Get:", e)
             return None
 do = {}
 def DO_Init(config_data):
@@ -344,10 +368,10 @@ class SafeDI:
 
                 self.pin.irq(trigger=trigger_type, handler=self._irq_handler)
 
-            print(f"[OK] DI{self.pin_id} Setup")
+            boot_print(f"[OK] DI{self.pin_id} Setup")
 
         except Exception as e:
-            print(f"[ERR] DI{self.pin_id} Setup:", e)
+            boot_print(f"[ERR] DI{self.pin_id} Setup:", e)
             self.pin = None
 
     def _irq_handler(self, pin):
@@ -369,7 +393,7 @@ class SafeDI:
                     elif self.link_to_out_type == "reverse":
                         output.value(not val)
         except Exception as e:
-            print(f"[ERR] DI{self.pin_id} IRQ:", e)
+            boot_print(f"[ERR] DI{self.pin_id} IRQ:", e)
 
     async def get(self):
         try:
@@ -378,7 +402,7 @@ class SafeDI:
                     return bool(self.pin.value())
                 return None
         except Exception as e:
-            print(f"[ERR] DI{self.pin_id} Get:", e)
+            boot_print(f"[ERR] DI{self.pin_id} Get:", e)
             return None
 
     async def count(self):
@@ -406,9 +430,9 @@ class SafeADC:
         try:
             pin_name = pinmap_data['ADC_pins_map'][f'ADC{self.pin_id}']
             self.pin = ADC(pin_name)
-            print(f"[OK] AI{self.pin_id} Setup")
+            boot_print(f"[OK] AI{self.pin_id} Setup")
         except Exception as e:
-            print(f"[ERR] AI{self.pin_id} Setup:", e)
+            boot_print(f"[ERR] AI{self.pin_id} Setup:", e)
             self.pin = None
 
     async def get(self):
@@ -419,7 +443,7 @@ class SafeADC:
                 else:
                     raise Exception("Not initialized")
         except Exception as e:
-            print(f"[ERR] AI{self.pin_id} Read:", e)
+            boot_print(f"[ERR] AI{self.pin_id} Read:", e)
             return None
 ai = {}
 def AI_Init():
@@ -448,17 +472,18 @@ def ETH_Init(config_data):
             eth.ifconfig((ip_address, subnet, gateway, dns))
         attempts = 0
         if not eth.isconnected():
-            print('[INFO] ETH Connecting...')
+            boot_print('[INFO] ETH Connecting...')
             while not eth.isconnected() and attempts < 15:
                 utime.sleep(1)
                 attempts += 1
 
             if not eth.isconnected():
                 raise Exception('Timeout')
-        print("[OK] ETH Init")
-        print(f"[INFO] IP: {eth.ifconfig()[0]}")
+        boot_print("[OK] ETH Init")
+        boot_print("[INFO] IP:")
+        boot_print(f" {eth.ifconfig()[0]}")
     except Exception as e:
-        print("[ERR] ETH Init:", e)
+        boot_print("[ERR] ETH Init:", e)
 
 ################################################################
 # RTC Init
@@ -473,37 +498,37 @@ class SafeRTC:
                 dt = self.rtc.datetime()
                 return dt
             except Exception as e:
-                print("[ERR] RTC get datetime:", e)
+                boot_print("[ERR] RTC get datetime:", e)
                 return None
 rtc = None
 def RTC_Init():
     global rtc
     try:
         rtc = SafeRTC(RTC(), asyncio.Lock())
-        print("[OK] RTC Init")
+        boot_print("[OK] RTC Init")
     except Exception as e:
-            print("[ERR] RTC Init:", e)
+            boot_print("[ERR] RTC Init:", e)
 
 ################################################################
 # LM75 Init
 class SafeLM75:
     def __init__(self, i2c, i2c_lock, addr=0x48):
-        self.sensor = LM75(i2c, addr)
         self.i2c_lock = i2c_lock
         try:
+            self.sensor = LM75(i2c, addr)
             if self.sensor.begin():
-                print("[OK] LM75 Init")
+                boot_print("[OK] LM75 Init")
             else:
                 raise Exception("Not responding")
         except Exception as e:
-            print("[ERR] LM75 Init:", e)
+            boot_print("[ERR] LM75 Init:", e)
 
     async def get(self):
         async with self.i2c_lock:
             try:
                 return self.sensor.read_temp()
             except Exception as e:
-                print("[ERR] LM75 get:", e)
+                boot_print("[ERR] LM75 get:", e)
                 return None
 lm75 = None
 def LM75_Init():
@@ -514,22 +539,22 @@ def LM75_Init():
 # ADS1115 Init
 class SafeADS1115:
     def __init__(self, i2c, i2c_lock, addr=0x48):
-        self.ads = ADS1115(i2c, addr)
         self.i2c_lock = i2c_lock
         try:
+            self.ads = ADS1115(i2c, addr)
             if self.ads.begin():
-                print("[OK] ADS1115 Init")
+                boot_print("[OK] ADS1115 Init")
             else:
                 raise Exception("Not responding")
         except Exception as e:
-            print("[ERR] ADS1115 Init:", e)
+            boot_print("[ERR] ADS1115 Init:", e)
 
     async def get(self, channel):
         async with self.i2c_lock:
             try:
                 return self.ads.read_adc(channel - 1)
             except Exception as e:
-                print(f"[ERR] ADS1115 get AD{channel}:", e)
+                boot_print(f"[ERR] ADS1115 get AD{channel}:", e)
                 return None
 ads1115 = None
 def ADS1555_Init():
@@ -551,9 +576,9 @@ class SafeSDCard:
             pass
         try:
             uos.mount(self.card, "/sd")
-            print("[OK] uSD mounted at /sd")
+            boot_print("[OK] uSD mounted at /sd")
         except Exception as e:
-            print("[ERR] uSD mount:", e)
+            boot_print("[ERR] uSD mount:", e)
 
     async def read_json(self, filepath):
         async with self.spi_lock:
@@ -561,7 +586,7 @@ class SafeSDCard:
                 with open(filepath, "r") as f:
                     return ujson.load(f)
             except Exception as e:
-                print("[ERR] Read data:", e)
+                boot_print("[ERR] Read data:", e)
                 return None
 
     async def write_json(self, filepath, data):
@@ -571,7 +596,7 @@ class SafeSDCard:
                     ujson.dump(data, f)
                 return True
             except Exception as e:
-                print("[ERR] Write data:", e)
+                boot_print("[ERR] Write data:", e)
                 return False
 sd = None
 def uSD_Init():

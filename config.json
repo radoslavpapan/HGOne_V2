@@ -145,7 +145,7 @@
                 "edge": "FALLING",
                 "meas_frequency": true,
                 "link_to_out": "",
-                "link_to_out_type": "",
+                "link_to_out_type": ""
             },
             "map": { "enable": true, "freq_min": 0, "freq_max": 680, "out_min": 0, "out_max": 59.5, "unit": "m/s" },
             "mqtt": { "publish": true, "interval": 2 }

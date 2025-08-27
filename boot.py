@@ -22,6 +22,8 @@ config.Config_Init()
 pheripherals.I2C1_Init()
 pheripherals.I2C2_Init()
 
+pheripherals.Disp_Init()
+
 pheripherals.StatusLED_Init()
 
 pheripherals.UART3_Init()
@@ -43,9 +45,9 @@ pheripherals.DI_Init(config.config_data)
 
 pheripherals.AI_Init()
 
-# pheripherals.ETH_Init(config.config_data)
-
 pheripherals.RTC_Init()
+
+# pheripherals.ETH_Init(config.config_data)
 
 pheripherals.LM75_Init()
 
@@ -54,3 +56,4 @@ pheripherals. ADS1555_Init()
 print('')
 
 main('main.py')
+
