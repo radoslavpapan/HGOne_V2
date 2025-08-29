@@ -1,82 +1,7 @@
-#
-# MicroPython SH1106 OLED driver, I2C and SPI interfaces
-#
-# The MIT License (MIT)
-#
-# Copyright (c) 2016 Radomir Dopieralski (@deshipu),
-#               2017-2021 Robert Hammelrath (@robert-hh)
-#               2021 Tim Weber (@scy)
-#
-# Permission is hereby granted, free of charge, to any person obtaining a copy
-# of this software and associated documentation files (the "Software"), to deal
-# in the Software without restriction, including without limitation the rights
-# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-# copies of the Software, and to permit persons to whom the Software is
-# furnished to do so, subject to the following conditions:
-#
-# The above copyright notice and this permission notice shall be included in
-# all copies or substantial portions of the Software.
-#
-# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-# THE SOFTWARE.
-#
-# Sample code sections for ESP8266 pin assignments
-# ------------ SPI ------------------
-# Pin Map SPI
-#   - 3v - xxxxxx   - Vcc
-#   - G  - xxxxxx   - Gnd
-#   - D7 - GPIO 13  - Din / MOSI fixed
-#   - D5 - GPIO 14  - Clk / Sck fixed
-#   - D8 - GPIO 4   - CS (optional, if the only connected device)
-#   - D2 - GPIO 5   - D/C
-#   - D1 - GPIO 2   - Res
-#
-# for CS, D/C and Res other ports may be chosen.
-#
-# from machine import Pin, SPI
-# import sh1106
-
-# spi = SPI(1, baudrate=1000000)
-# display = sh1106.SH1106_SPI(128, 64, spi, Pin(5), Pin(2), Pin(4))
-# display.sleep(False)
-# display.fill(0)
-# display.text('Testing 1', 0, 0, 1)
-# display.show()
-#
-# --------------- I2C ------------------
-#
-# Pin Map I2C
-#   - 3v - xxxxxx   - Vcc
-#   - G  - xxxxxx   - Gnd
-#   - D2 - GPIO 5   - SCK / SCL
-#   - D1 - GPIO 4   - DIN / SDA
-#   - D0 - GPIO 16  - Res
-#   - G  - xxxxxx     CS
-#   - G  - xxxxxx     D/C
-#
-# Pin's for I2C can be set almost arbitrary
-#
-# from machine import Pin, I2C
-# import sh1106
-#
-# i2c = I2C(scl=Pin(5), sda=Pin(4), freq=400000)
-# display = sh1106.SH1106_I2C(128, 64, i2c, Pin(16), 0x3c)
-# display.sleep(False)
-# display.fill(0)
-# display.text('Testing 1', 0, 0, 1)
-# display.show()
-
 from micropython import const
 import utime as time
 import framebuf
 
-
-# a few register definitions
 _SET_CONTRAST        = const(0x81)
 _SET_NORM_INV        = const(0xa6)
 _SET_DISP            = const(0xae)
@@ -109,9 +34,6 @@ class SH1106(framebuf.FrameBuffer):
 
         if self.rotate90:
             self.displaybuf = bytearray(self.bufsize)
-            # HMSB is required to keep the bit order in the render buffer
-            # compatible with byte-for-byte remapping to the display buffer,
-            # which is in VLSB. Else we'd have to copy bit-by-bit!
             super().__init__(self.renderbuf, self.height, self.width,
                              framebuf.MONO_HMSB)
         else:
@@ -119,25 +41,10 @@ class SH1106(framebuf.FrameBuffer):
             super().__init__(self.renderbuf, self.width, self.height,
                              framebuf.MONO_VLSB)
 
-        # flip() was called rotate() once, provide backwards compatibility.
         self.rotate = self.flip
         self.init_display()
 
     # My Func!!!
-    '''
-    def println(self, text):            
-        if self.current_line >= self.max_lines:
-            self.scroll(0, -self.line_height)
-            # Clear last row
-            self.fill_rect(0, self.max_lines * self.line_height, self.width, self.line_height, 0)
-            self.current_line -= 1
-        
-        # Clear row before display new text
-        self.fill_rect(0, self.current_line * self.line_height, self.width, self.line_height, 0)
-        self.text(str(text), 0, self.current_line * self.line_height)
-        self.show()
-        self.current_line += 1
-    '''
     def println(self, text):
         # Split text for more rows 
         while len(text) > 0:
@@ -161,7 +68,6 @@ class SH1106(framebuf.FrameBuffer):
         self.fill(0)
         self.show()
         self.poweron()
-        # rotate90 requires a call to flip() for setting up.
         self.flip(self.flip_en)
 
     def poweroff(self):
@@ -181,7 +87,7 @@ class SH1106(framebuf.FrameBuffer):
         self.write_cmd(_SET_SCAN_DIR | (0x08 if mir_h else 0x00))
         self.flip_en = flag
         if update:
-            self.show(True) # full update
+            self.show(True)
 
     def sleep(self, value):
         self.write_cmd(_SET_DISP | (not value))
@@ -194,7 +100,6 @@ class SH1106(framebuf.FrameBuffer):
         self.write_cmd(_SET_NORM_INV | (invert & 1))
 
     def show(self, full_update = False):
-        # self.* lookups in loops take significant time (~4fps).
         (w, p, db, rb) = (self.width, self.pages,
                           self.displaybuf, self.renderbuf)
         if self.rotate90:
@@ -204,7 +109,6 @@ class SH1106(framebuf.FrameBuffer):
             pages_to_update = (1 << self.pages) - 1
         else:
             pages_to_update = self.pages_to_update
-        #print("Updating pages: {:08b}".format(pages_to_update))
         for page in range(self.pages):
             if (pages_to_update & (1 << page)):
                 self.write_cmd(_SET_PAGE_ADDRESS | page)
@@ -248,7 +152,6 @@ class SH1106(framebuf.FrameBuffer):
         self.register_updates(y, y+self.height)
 
     def scroll(self, x, y):
-        # my understanding is that scroll() does a full screen change
         super().scroll(x, y)
         self.pages_to_update =  (1 << self.pages) - 1
 
@@ -261,12 +164,8 @@ class SH1106(framebuf.FrameBuffer):
         self.register_updates(y, y+h-1)
 
     def register_updates(self, y0, y1=None):
-        # this function takes the top and optional bottom address of the changes made
-        # and updates the pages_to_change list with any changed pages
-        # that are not yet on the list
         start_page = max(0, y0 // 8)
         end_page = max(0, y1 // 8) if y1 is not None else start_page
-        # rearrange start_page and end_page if coordinates were given from bottom to top
         if start_page > end_page:
             start_page, end_page = end_page, start_page
         for page in range(start_page, end_page+1):
@@ -305,7 +204,7 @@ class SH1106_I2C(SH1106):
             return False
         
     def write_cmd(self, cmd):
-        self.temp[0] = 0x80  # Co=1, D/C#=0
+        self.temp[0] = 0x80
         self.temp[1] = cmd
         self.i2c.writeto(self.addr, self.temp)
 
@@ -355,4 +254,5 @@ class SH1106_SPI(SH1106):
 
     def reset(self):
         super().reset(self.res)
+
 

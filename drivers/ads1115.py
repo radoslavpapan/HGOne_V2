@@ -22,10 +22,6 @@ class ADS1115:
         self._address = addr
 
     def begin(self):
-        """
-        Test communication with ADS1115 by reading config register.
-        Returns True if successful, False otherwise.
-        """
         try:
             _ = self._read_reg(_CONFIG_REG)
             return True
@@ -33,9 +29,6 @@ class ADS1115:
             return False
 
     def read_voltage(self, channel):
-        """
-        Return voltage 0–5V.
-        """
         raw = self.read_adc(channel)
         if raw > 0x7FFF:
             raw -= 0x10000
@@ -44,9 +37,6 @@ class ADS1115:
         return round(voltage, 4)
     
     def read_adc(self, channel):
-        """
-        Return value ADC 0–65535
-        """
         if channel not in (0, 1, 2, 3):
             raise ValueError("Invalid channel")
 
@@ -73,7 +63,6 @@ class ADS1115:
     def _write_reg(self, reg, val):
         data = struct.pack(">H", val)
         self._i2c.writeto_mem(self._address, reg, data)
-
 
     def _read_reg(self, reg):
         data = self._i2c.readfrom_mem(self._address, reg, 2)

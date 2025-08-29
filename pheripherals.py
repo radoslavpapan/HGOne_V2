@@ -16,20 +16,138 @@ def boot_print(text):
         pass
     if '[ERR]' in text:
         utime.sleep(5)
+
+def alert_print(text):
+    print(text)
+    if disp is not None:
+        try:
+            # spustíme popup ako task, aby neblokoval
+            asyncio.create_task(disp.popup(text, 10))
+        except Exception as e:
+            print("[ERR] alert_print:", e)
+
 ################################################################
 # OLED Display Init
+class SafeOLED:
+    def __init__(self, base_disp, i2c_lock, line_height=8):
+        self.oled = base_disp
+        self._lock = i2c_lock
+        self.width = base_disp.width
+        self.height = base_disp.height
+        self.line_height = line_height
+        self.lines = self.height // line_height
+
+        self._buffer = ["" for _ in range(self.lines)]
+        self._popup_active = False
+        self._popup_task = None
+
+    async def write_line(self, line: int, text: str):
+        if not (0 <= line < self.lines):
+            return
+        async with self._lock:
+            try:
+                old = self._buffer[line]
+                new = str(text)
+                if old != new and not self._popup_active:
+                    self.oled.fill_rect(0, line * self.line_height, self.width, self.line_height, 0)
+                    self.oled.text(new, 0, line * self.line_height)
+                    self.oled.show()
+                    self._buffer[line] = new
+            except Exception as e:
+                print("[ERR] OLED write_line:", e)
+
+    async def write_lines_dict(self, lines_dict: dict):
+        async with self._lock:
+            try:
+                for row, text in lines_dict.items():
+                    if 0 <= row < self.lines:
+                        self._buffer[row] = str(text)
+
+                if not self._popup_active:
+                    self.oled.fill(0)
+                    for i, text in enumerate(self._buffer):
+                        self.oled.text(text, 0, i * self.line_height)
+                    self.oled.show()
+            except Exception as e:
+                print("[ERR] OLED write_lines_dict:", e)
+
+    async def refresh(self):
+        async with self._lock:
+            try:
+                self.oled.fill(0)
+                if not self._popup_active:
+                    for i, text in enumerate(self._buffer):
+                        self.oled.text(text, 0, i * self.line_height)
+                self.oled.show()
+            except Exception as e:
+                print("[ERR] OLED refresh:", e)
+
+    async def popup(self, text: str, timeout: float = None):
+        if self._popup_task is not None:
+            self._popup_task.cancel()
+            self._popup_task = None
+
+        async with self._lock:
+            try:
+                self._popup_active = True
+                self.oled.fill(0)
+                self.oled.text(str(text), 0, 0)
+                self.oled.show()
+            except Exception as e:
+                print("[ERR] OLED popup:", e)
+
+        # spustíme nový timeout task, ak je timeout zadaný
+        if timeout is not None:
+            self._popup_task = asyncio.create_task(self._popup_timeout_task(timeout))
+
+    async def _popup_timeout_task(self, timeout: float):
+        try:
+            await asyncio.sleep(timeout)
+            await self.popup_clear()
+        except asyncio.CancelledError:
+            pass
+        finally:
+            self._popup_task = None
+
+    async def popup_clear(self):
+        need_refresh = False
+        async with self._lock:
+            if self._popup_active:
+                self._popup_active = False
+                need_refresh = True
+
+        if need_refresh:
+            await self.refresh()  
 boot_disp = None
+disp = None
 def Disp_Init():
-    global boot_disp
+    global boot_disp, disp
     try:
         boot_disp = SH1106_I2C(128, 64, i2c1, rotate=180)
+        
         if boot_disp.begin():
             boot_print("[OK] Display Init")
             boot_disp.init_display()
         else:
             raise TypeError("Disp init Fail")
+        disp = SafeOLED(boot_disp, i2c1_lock)    
     except Exception as e:
         boot_print("[ERR] Display Init:", e)
+
+'''
+example:
+lines  = {
+        0: "Hello",
+        1: "World",
+        2: "Doplnok",
+        3: "Riadok 4"
+    }
+await pheripherals.disp.write_lines_dict(lines)
+or
+await pheripherals.disp.write_line(1, f'cnter: {counter}')
+or
+await pheripherals.popup('test', 5)
+'''
 
 ################################################################
 # Load json files
@@ -223,11 +341,10 @@ def Timer3_Init(config_data):
 ################################################################
 # DO Init
 class SafeDO:
-    def __init__(self, pin_id: int, config_data, tim1=None, tim3=None):
+    def __init__(self, pin_id: int, config_data, tim=None):
         self.pin_id = pin_id
         self.config_data = config_data
-        self.tim1 = tim1
-        self.tim3 = tim3
+        self.tim = tim
         self.pin = None
         self.lock = asyncio.Lock()
         self.setup()
@@ -236,26 +353,15 @@ class SafeDO:
         try:
             pin_name = pinmap_data['DO_pins_map'][f'DO{self.pin_id}']
             init_value = self.config_data['DO'][f'DO{self.pin_id}']['init_value']
-            pwm_enabled = self.config_data['DO'][f'DO{self.pin_id}'].get('pwm', {}).get('enable', False)
-            pwm_duty = self.config_data['DO'][f'DO{self.pin_id}'].get('pwm', {}).get('duty', 0)
+            pwm_cfg = self.config_data['DO'][f'DO{self.pin_id}'].get('pwm', {})
+            pwm_enabled = pwm_cfg.get('enable', False)
+            pwm_duty = pwm_cfg.get('duty', 0)
 
-            if 1 <= self.pin_id <= 4:
-                if pwm_enabled and self.tim1 is not None:
-                    pin = Pin(pin_name, Pin.OUT)
-                    ch = self.pin_id
-                    self.pin = self.tim1.channel(ch, Timer.PWM, pin=pin, pulse_width_percent=pwm_duty)
-                else:
-                    self.pin = Pin(pin_name, Pin.OUT_PP, value=init_value)
-
-            elif 9 <= self.pin_id <= 12:
-                if pwm_enabled and self.tim3 is not None:
-                    pin = Pin(pin_name, Pin.OUT)
-                    ch = self.pin_id - 8
-                    self.pin = self.tim3.channel(ch, Timer.PWM, pin=pin, pulse_width_percent=pwm_duty)
-                else:
-                    self.pin = Pin(pin_name, Pin.OUT_PP, value=init_value)
-
-            elif (5 <= self.pin_id <= 8) or (13 <= self.pin_id <= 16):
+            if pwm_enabled and self.tim is not None:
+                pin = Pin(pin_name, Pin.OUT)
+                ch = (self.pin_id - 1) % 4 + 1
+                self.pin = self.tim.channel(ch, Timer.PWM, pin=pin, pulse_width_percent=pwm_duty)
+            else:
                 self.pin = Pin(pin_name, Pin.OUT_PP, value=init_value)
 
             boot_print(f"[OK] DO{self.pin_id} Setup")
@@ -264,7 +370,7 @@ class SafeDO:
             boot_print(f"[ERR] DO{self.pin_id} Setup:", e)
             self.pin = None
 
-    async def on(self):
+    async def _on_set(self):
         try:
             if isinstance(self.pin, Pin):
                 async with self.lock:
@@ -272,9 +378,9 @@ class SafeDO:
             else:
                 raise TypeError("Incorrect instance")
         except Exception as e:
-            boot_print("[ERR] DO On:", e)
+            alert_print("[ERR] DO On:", e)
 
-    async def off(self):
+    async def _off_set(self):
         try:
             if isinstance(self.pin, Pin):
                 async with self.lock:
@@ -282,19 +388,19 @@ class SafeDO:
             else:
                 raise TypeError("Incorrect instance")
         except Exception as e:
-            boot_print("[ERR] DO Off:", e)
+            alert_print("[ERR] DO Off:", e)
 
-    async def duty(self, value: int):
+    async def _duty_set(self, value: int):
         try:
-            if not isinstance(self.pin, Pin):
+            if hasattr(self.pin, "pulse_width_percent"):
                 async with self.lock:
                     self.pin.pulse_width_percent(value)
             else:
                 raise TypeError("Incorrect instance")
         except Exception as e:
-            boot_print("[ERR] DO Duty:", e)
+            alert_print("[ERR] DO Duty:", e)
 
-    async def get(self):
+    async def _get(self):
         try:
             async with self.lock:
                 if isinstance(self.pin, Pin):
@@ -302,12 +408,44 @@ class SafeDO:
                 else:
                     return self.pin.pulse_width_percent()
         except Exception as e:
-            boot_print("[ERR] DO Get:", e)
+            alert_print("[ERR] DO Get:", e)
+            return None
+        
+    async def on(self):
+        try:
+            await self._on_set()
+        except :
+            alert_print("[ERR] DO On:")
+
+    async def off(self):
+        try:
+            await self._off_set()
+        except :
+            alert_print("[ERR] DO Off:")
+
+    async def duty(self, value: int):
+        try:
+            await self._duty_set(value)
+        except:
+            alert_print("[ERR] DO Duty:")
+
+    
+    async def get(self):
+        try:
+            val = await self._get()
+            return val
+        except Exception as e:
+            alert_print("[ERR] DO Get:", e)
             return None
 do = {}
 def DO_Init(config_data):
     for i in range(1, 17):
-        do[i] = SafeDO(i, config_data, tim1=tim1, tim3=tim3)
+        if 1 <= i <= 4:
+            do[i] = SafeDO(i, config_data, tim=tim1)
+        elif 9 <= i <= 12:
+            do[i] = SafeDO(i, config_data, tim=tim3)
+        else:
+            do[i] = SafeDO(i, config_data, tim=None)
 '''
 example like Pin:
   await do[1].on()
@@ -402,7 +540,7 @@ class SafeDI:
                     return bool(self.pin.value())
                 return None
         except Exception as e:
-            boot_print(f"[ERR] DI{self.pin_id} Get:", e)
+            alert_print(f"[ERR] DI{self.pin_id} Get:", e)
             return None
 
     async def count(self):
@@ -604,3 +742,6 @@ def uSD_Init():
     sd = SafeSDCard(spi=spi3, cs_pin=spi3_ss, spi_lock=spi3_lock)
 
 #####################################################################
+
+
+

@@ -1,7 +1,6 @@
 import utime
 import uasyncio as asyncio
 import pheripherals
-
 exec(open('boot.py').read())
 
 # config.Config_Update(["timer1", "enable"], True)
@@ -23,51 +22,71 @@ exec(open('boot.py').read())
 # config.Config_Update(["DI", "DI1", "irq", "link_to_out_type"], "direct")
 
 async def main():
-#     for i in range(1, 17):
-#         stat = await pheripherals.di[i].get()
-#         print(f'DI{i}: {stat}')
-#     for i in range(1, 5):
-#         stat = await pheripherals.ai[i].get()
-#         print(f'AI{i}: {stat}')
-#     
-#     cur_time = await pheripherals.rtc.get_datetime()
-#     print(cur_time)
-#     
-#     cur_pcb_temp = await pheripherals.lm75.get()
-#     print(cur_pcb_temp)
-#     
-#     for i in range(1, 5):
-#         stat = await pheripherals.ads1115.get(i)
-#         print(f'AIExt{i}: {stat}')
+    for i in range(1, 17):
+        stat = await pheripherals.di[i].get()
+        print(f'DI{i}: {stat}')
+    for i in range(1, 5):
+        stat = await pheripherals.ai[i].get()
+        print(f'AI{i}: {stat}')
+    
+    cur_time = await pheripherals.rtc.get_datetime()
+    print(cur_time)
+    
+    cur_pcb_temp = await pheripherals.lm75.get()
+    print(cur_pcb_temp)
+    
+    for i in range(1, 5):
+        stat = await pheripherals.ads1115.get(i)
+        print(f'AIExt{i}: {stat}')
     
 #     for i in range(1, 100):
-#         await pheripherals.do[9].duty(i)
+#         await pheripherals.do[1].duty(i)
 #         await asyncio.sleep(0.005)
 #         print(f"Hodnota: {i}", end="\r")
-#     for i in range(100, 1, -1):
-#         await pheripherals.do[9].duty(i)
+#     for i in range(100, 50, -1):
+#         await pheripherals.do[1].duty(i)
 #         await asyncio.sleep(0.005)
 #         print(f"Hodnota: {i}", end="\r")
-#         
 #     for i in range(1, 17):
+#         print('ON')
 #         await pheripherals.do[i].on()
+#         print('Read')
 #         stat = await pheripherals.do[i].get()
 #         print(f'DO{i}: {stat}')
 #     for i in range(1, 17):
 #         await pheripherals.do[i].off()
 #         stat = await pheripherals.do[i].get()
 #         print(f'DO{i}: {stat}')
+
     
+    lines  = {
+        0: "Hello",
+        1: "World",
+        2: "Doplnok",
+        3: "Riadok 4"
+    }
+    
+    await pheripherals.disp.write_lines_dict(lines)
+    counter = 0
+    freq = 0
     while True:
-        counter = await pheripherals.di[1].count()
-        print(f"\rDI1 Counter: {counter:<10}", end="")
+        await pheripherals.disp.write_line(1, f'cnter: {counter}')
+        counter += 1
+        
+        if counter == 5 or counter == 12:
+           await pheripherals.disp.popup('test', 2)
+            
+        
+        freq = await pheripherals.di[1].count()
+        print(f"\rDI1 Counter: {freq:<10}", end="")
         await pheripherals.di[1].reset_count()
-        await asyncio.sleep(1)
+        
 #         pheripherals.status_led.on()
 #         await asyncio.sleep(0.25)
 #         pheripherals.status_led.off()
 #         await asyncio.sleep(0.5)
-
+        await asyncio.sleep(1)
+        
     await asyncio.sleep(0.5)
 
 try:
