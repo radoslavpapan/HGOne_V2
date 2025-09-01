@@ -5,7 +5,6 @@
         "address": "0xA1"
     },
     "eth": {
-        "enable": false,
         "ip": "DHCP",
         "subnet": "",
         "gateway": "",
@@ -24,12 +23,10 @@
         "bitr": 1000000
     },
     "timer1": {
-        "enable": false,
-        "freq": 50
+        "freq": 25
     },
     "timer3": {
-        "enable": false,
-        "freq": 50
+        "freq": 25
     },
     "MQTT": {
         "enable": true,
@@ -104,10 +101,10 @@
             "mqtt": { "subscribe": true, "publish": true, "interval": 2 }
         },
         "DO11": {
-            "name": "DO11",
+            "name": "Test",
             "init_value": false,
-            "pwm": { "enable": false, "duty": 50 },
-            "mqtt": { "subscribe": false, "publish": false, "interval": 2 }
+            "pwm": { "enable": true, "duty": 50 },
+            "mqtt": { "subscribe": true, "publish": true, "interval": 2 }
         },
         "DO12": {
             "name": "IrrigRound5",
@@ -349,44 +346,44 @@
     "AIInt": {
         "AI1": {
             "name": "OutdoorLight",
-            "map": { "enable": true, "raw_min": 0, "raw_max": 4096, "out_min": 0, "out_max": 100, "unit": "%" },
+            "map": { "raw_min": 0, "raw_max": 4096, "out_min": 0, "out_max": 100, "unit": "%" },
             "mqtt": { "publish": true, "interval": 15 }
         },
         "AI2": {
             "name": "AI2",
-            "map": { "enable": false, "raw_min": 0, "raw_max": 4096, "out_min": 0, "out_max": 3.3, "unit": "V" },
+            "map": { "raw_min": 0, "raw_max": 4096, "out_min": 0, "out_max": 3.3, "unit": "V" },
             "mqtt": { "publish": false, "interval": 2 }
         },
         "AI3": {
             "name": "AI3",
-            "map": { "enable": false, "raw_min": 0, "raw_max": 4096, "out_min": 0, "out_max": 3.3, "unit": "V" },
+            "map": { "raw_min": 0, "raw_max": 4096, "out_min": 0, "out_max": 3.3, "unit": "V" },
             "mqtt": { "publish": false, "interval": 2 }
         },
         "AI4": {
             "name": "AI4",
-            "map": { "enable": false, "raw_min": 0, "raw_max": 4096, "out_min": 0, "out_max": 3.3, "unit": "V" },
+            "map": { "raw_min": 0, "raw_max": 4096, "out_min": 0, "out_max": 3.3, "unit": "V" },
             "mqtt": { "publish": false, "interval": 2 }
         }
     },
     "AIExt": {
         "AI1": {
             "name": "SoilHum",
-            "map": { "enable": true, "raw_min": 0, "raw_max": 65535, "out_min": 0, "out_max": 5, "unit": "V" },
+            "map": { "raw_min": 0, "raw_max": 32767, "out_min": 0, "out_max": 6.1445, "unit": "V" },
             "mqtt": { "publish": true, "interval": 15 }
         },
         "AI2": {
             "name": "AI2",
-            "map": { "enable": false, "raw_min": 0, "raw_max": 65535, "out_min": 0, "out_max": 5000, "unit": "mV" },
+            "map": { "raw_min": 0, "raw_max": 32767, "out_min": 0, "out_max": 6.144, "unit": "V" },
             "mqtt": { "publish": false, "interval": 2 }
         },
         "AI3": {
             "name": "AI3",
-            "map": { "enable": false, "raw_min": 0, "raw_max": 65535, "out_min": 0, "out_max": 5000, "unit": "mV" },
+            "map": { "raw_min": 0, "raw_max": 32767, "out_min": 0, "out_max": 6.144, "unit": "V" },
             "mqtt": { "publish": false, "interval": 2 }
         },
         "AI4": {
             "name": "AI4",
-            "map": { "enable": false, "raw_min": 0, "raw_max": 65535, "out_min": 0, "out_max": 5000, "unit": "mV" },
+            "map": { "raw_min": 0, "raw_max": 32767, "out_min": 0, "out_max": 6144, "unit": "mV" },
             "mqtt": { "publish": false, "interval": 2 }
         }
     }

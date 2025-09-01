@@ -4,23 +4,28 @@ repl_uart(None) # must be turned off on begining because same uart is used for w
 import gc
 gc.collect()
 import sys
-modules_to_clear = ['pheripherals', 'config']
+modules_to_clear = ['pheripherals', 'config', 'shared_data', 'services', 'dht_api', 'mqtt_api']
 for mod in modules_to_clear:
     if mod in sys.modules:
         del sys.modules[mod]
 
 
 import pheripherals
+import shared_data
 import config
+import dht_api
+import mqtt_api
 
 pheripherals.PinMap_Init()
-pheripherals.SPI3_Init()
 pheripherals.uSD_Init()
 
 config.Config_Init()
 
+pheripherals.ETH_Init(config.config_data)
+
+pheripherals.RTC_Init()
+
 pheripherals.I2C1_Init()
-pheripherals.I2C2_Init()
 
 pheripherals.Disp_Init()
 
@@ -45,15 +50,21 @@ pheripherals.DI_Init(config.config_data)
 
 pheripherals.AI_Init()
 
-pheripherals.RTC_Init()
-
-# pheripherals.ETH_Init(config.config_data)
-
 pheripherals.LM75_Init()
 
 pheripherals. ADS1555_Init()
 
+shared_data.SharedData_Init(config.config_data)
+
+dht_api.DHT_Init(config.dht_config_data)
+
+pheripherals.disp_clear()
+
+mqtt_api.MQTT_Init(config.config_data, config.dht_config_data)
+
 print('')
 
 main('main.py')
+
+
 

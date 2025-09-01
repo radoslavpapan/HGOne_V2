@@ -5,7 +5,10 @@ class LM75:
 
     def begin(self):
         devices = self.i2c.scan()
-        return self.addr in devices
+        if self.addr in devices:
+            return True
+        else:
+            return False
 
     def read_temp(self):
         data = self.i2c.readfrom_mem(self.addr, 0x00, 2)

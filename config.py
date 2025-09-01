@@ -1,15 +1,17 @@
 import ujson
 
 config_data = None
-app_config_data = None
+dht_config_data = None
     
 #Load json files
 def Config_Init():
     try:
-        global config_data
+        global config_data, dht_config_data
         
         with open ('/sd/config.json', 'r') as f:
             config_data = ujson.load(f)
+        with open ('/sd/dht_config.json', 'r') as f:
+            dht_config_data = ujson.load(f)
         print("[OK] Config Init")
     except Exception as e:
         print("[ERR] Config Init:", e)

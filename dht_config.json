@@ -1,0 +1,303 @@
+{
+    "DHT1": {
+        "enable": true,
+        "pin_name": "DIO1",
+        "temperature": {
+            "name": "OutdoorTemp",
+            "unit": "°C",
+            "mqtt": {
+                "publish": true,
+                "interval": 1
+            }
+        },
+        "humidity": {
+            "name": "OutdoorHum",
+            "unit": "%",
+            "mqtt": {
+                "publish": true,
+                "interval": 1
+            }
+        }
+    },
+    "DHT2": {
+        "enable": false,
+        "pin_name": "DIO2",
+        "temperature": {
+            "name": "IndoorTemp",
+            "unit": "°C",
+            "mqtt": {
+                "publish": false,
+                "interval": 1
+            }
+        },
+        "humidity": {
+            "name": "IndoorHum",
+            "unit": "%",
+            "mqtt": {
+                "publish": false,
+                "interval": 1
+            }
+        }
+    },
+    "DHT3": {
+        "enable": false,
+        "pin_name": "DIO3",
+        "temperature": {
+            "name": "DHT3Temp",
+            "unit": "°C",
+            "mqtt": {
+                "publish": false,
+                "interval": 1
+            }
+        },
+        "humidity": {
+            "name": "DHT3Hum",
+            "unit": "%",
+            "mqtt": {
+                "publish": false,
+                "interval": 1
+            }
+        }
+    },
+    "DHT4": {
+        "enable": false,
+        "pin_name": "DIO4",
+        "temperature": {
+            "name": "DHT4Temp",
+            "unit": "°C",
+            "mqtt": {
+                "publish": false,
+                "interval": 1
+            }
+        },
+        "humidity": {
+            "name": "DHT4Hum",
+            "unit": "%",
+            "mqtt": {
+                "publish": false,
+                "interval": 1
+            }
+        }
+    },
+    "DHT5": {
+        "enable": false,
+        "pin_name": "DIO5",
+        "temperature": {
+            "name": "DHT5Temp",
+            "unit": "°C",
+            "mqtt": {
+                "publish": false,
+                "interval": 1
+            }
+        },
+        "humidity": {
+            "name": "DHT5Hum",
+            "unit": "%",
+            "mqtt": {
+                "publish": false,
+                "interval": 1
+            }
+        }
+    },
+    "DHT6": {
+        "enable": false,
+        "pin_name": "DIO6",
+        "temperature": {
+            "name": "DHT6Temp",
+            "unit": "°C",
+            "mqtt": {
+                "publish": false,
+                "interval": 1
+            }
+        },
+        "humidity": {
+            "name": "DHT6Hum",
+            "unit": "%",
+            "mqtt": {
+                "publish": false,
+                "interval": 1
+            }
+        }
+    },
+    "DHT7": {
+        "enable": false,
+        "pin_name": "DIO7",
+        "temperature": {
+            "name": "DHT7Temp",
+            "unit": "°C",
+            "mqtt": {
+                "publish": false,
+                "interval": 1
+            }
+        },
+        "humidity": {
+            "name": "DHT7Hum",
+            "unit": "%",
+            "mqtt": {
+                "publish": false,
+                "interval": 1
+            }
+        }
+    },
+    "DHT8": {
+        "enable": false,
+        "pin_name": "DIO8",
+        "temperature": {
+            "name": "DHT8Temp",
+            "unit": "°C",
+            "mqtt": {
+                "publish": false,
+                "interval": 1
+            }
+        },
+        "humidity": {
+            "name": "DHT8Hum",
+            "unit": "%",
+            "mqtt": {
+                "publish": false,
+                "interval": 1
+            }
+        }
+    },
+    "DHT9": {
+        "enable": false,
+        "pin_name": "DIO9",
+        "temperature": {
+            "name": "DHT9Temp",
+            "unit": "°C",
+            "mqtt": {
+                "publish": false,
+                "interval": 1
+            }
+        },
+        "humidity": {
+            "name": "DHT9Hum",
+            "unit": "%",
+            "mqtt": {
+                "publish": false,
+                "interval": 1
+            }
+        }
+    },
+    "DHT10": {
+        "enable": false,
+        "pin_name": "DIO10",
+        "temperature": {
+            "name": "DHT10Temp",
+            "unit": "°C",
+            "mqtt": {
+                "publish": false,
+                "interval": 1
+            }
+        },
+        "humidity": {
+            "name": "DHT10Hum",
+            "unit": "%",
+            "mqtt": {
+                "publish": false,
+                "interval": 1
+            }
+        }
+    },
+    "DHT11": {
+        "enable": false,
+        "pin_name": "DIO11",
+        "temperature": {
+            "name": "DHT11Temp",
+            "unit": "°C",
+            "mqtt": {
+                "publish": false,
+                "interval": 1
+            }
+        },
+        "humidity": {
+            "name": "DHT11Hum",
+            "unit": "%",
+            "mqtt": {
+                "publish": false,
+                "interval": 1
+            }
+        }
+    },
+    "DHT12": {
+        "enable": false,
+        "pin_name": "DIO12",
+        "temperature": {
+            "name": "DHT12Temp",
+            "unit": "°C",
+            "mqtt": {
+                "publish": false,
+                "interval": 1
+            }
+        },
+        "humidity": {
+            "name": "DHT12Hum",
+            "unit": "%",
+            "mqtt": {
+                "publish": false,
+                "interval": 1
+            }
+        }
+    },
+    "DHT13": {
+        "enable": false,
+        "pin_name": "DIO13",
+        "temperature": {
+            "name": "DHT13Temp",
+            "unit": "°C",
+            "mqtt": {
+                "publish": false,
+                "interval": 1
+            }
+        },
+        "humidity": {
+            "name": "DHT13Hum",
+            "unit": "%",
+            "mqtt": {
+                "publish": false,
+                "interval": 1
+            }
+        }
+    },
+    "DHT14": {
+        "enable": false,
+        "pin_name": "DIO14",
+        "temperature": {
+            "name": "DHT14Temp",
+            "unit": "°C",
+            "mqtt": {
+                "publish": false,
+                "interval": 1
+            }
+        },
+        "humidity": {
+            "name": "DHT14Hum",
+            "unit": "%",
+            "mqtt": {
+                "publish": false,
+                "interval": 1
+            }
+        }
+    },
+    "DHT15": {
+        "enable": false,
+        "pin_name": "DIO15",
+        "temperature": {
+            "name": "DHT15Temp",
+            "unit": "°C",
+            "mqtt": {
+                "publish": false,
+                "interval": 1
+            }
+        },
+        "humidity": {
+            "name": "DHT15Hum",
+            "unit": "%",
+            "mqtt": {
+                "publish": false,
+                "interval": 1
+            }
+        }
+    }
+    
+}

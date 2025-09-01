@@ -14,7 +14,7 @@ _COMP_3_GND = 0x7000
 
 _SPS_128 = 0x0080
 
-_REG_FACTOR = 0x7FFF
+_REG_FACTOR = 32767
 
 class ADS1115:
     def __init__(self, i2c, addr=0x48):
@@ -30,9 +30,6 @@ class ADS1115:
 
     def read_voltage(self, channel):
         raw = self.read_adc(channel)
-        if raw > 0x7FFF:
-            raw -= 0x10000
-
         voltage = (raw * 6.144) / _REG_FACTOR
         return round(voltage, 4)
     
@@ -57,8 +54,7 @@ class ADS1115:
         
         utime.sleep(0.01)
 
-        raw = self._read_reg(_CONV_REG)  # už unsigned
-        return raw
+        return self._read_reg(_CONV_REG) # 0 => 0V .. 32767 => 6.144V
 
     def _write_reg(self, reg, val):
         data = struct.pack(">H", val)
@@ -66,4 +62,5 @@ class ADS1115:
 
     def _read_reg(self, reg):
         data = self._i2c.readfrom_mem(self._address, reg, 2)
-        return struct.unpack(">H", data)[0]
+        return struct.unpack(">h", data)[0]
+

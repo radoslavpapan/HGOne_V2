@@ -255,4 +255,3 @@ class SH1106_SPI(SH1106):
     def reset(self):
         super().reset(self.res)
 
-

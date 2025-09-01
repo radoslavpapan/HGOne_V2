@@ -1,6 +1,6 @@
 from machine import SPI, I2C, UART, WDT
 from pyb import Pin, Timer, CAN, RTC, ADC
-import network, utime, uos, ujson
+import network, ntptime, utime, uos, ujson
 import uasyncio as asyncio
 
 from drivers.lm75 import LM75
@@ -11,20 +11,23 @@ from drivers.sh1106 import SH1106_I2C
 def boot_print(text):
     print(text)
     try:
-        boot_disp.println(text)
+        pass # boot_disp.println(text)
     except:
         pass
     if '[ERR]' in text:
         utime.sleep(5)
 
-def alert_print(text):
+def alert_print(text, timeout=10):
     print(text)
     if disp is not None:
         try:
-            # spustíme popup ako task, aby neblokoval
-            asyncio.create_task(disp.popup(text, 10))
-        except Exception as e:
-            print("[ERR] alert_print:", e)
+            asyncio.create_task(disp.popup(text, timeout))
+        except:
+            pass
+
+def disp_clear():
+    boot_disp.fill(0)
+    boot_disp.show()
 
 ################################################################
 # OLED Display Init
@@ -44,6 +47,7 @@ class SafeOLED:
     async def write_line(self, line: int, text: str):
         if not (0 <= line < self.lines):
             return
+        
         async with self._lock:
             try:
                 old = self._buffer[line]
@@ -53,8 +57,8 @@ class SafeOLED:
                     self.oled.text(new, 0, line * self.line_height)
                     self.oled.show()
                     self._buffer[line] = new
-            except Exception as e:
-                print("[ERR] OLED write_line:", e)
+            except:
+                print("[ERR] OLED write_line")
 
     async def write_lines_dict(self, lines_dict: dict):
         async with self._lock:
@@ -68,8 +72,8 @@ class SafeOLED:
                     for i, text in enumerate(self._buffer):
                         self.oled.text(text, 0, i * self.line_height)
                     self.oled.show()
-            except Exception as e:
-                print("[ERR] OLED write_lines_dict:", e)
+            except:
+                print("[ERR] OLED write_lines_dict")
 
     async def refresh(self):
         async with self._lock:
@@ -79,8 +83,8 @@ class SafeOLED:
                     for i, text in enumerate(self._buffer):
                         self.oled.text(text, 0, i * self.line_height)
                 self.oled.show()
-            except Exception as e:
-                print("[ERR] OLED refresh:", e)
+            except:
+                print("[ERR] OLED refresh")
 
     async def popup(self, text: str, timeout: float = None):
         if self._popup_task is not None:
@@ -93,10 +97,9 @@ class SafeOLED:
                 self.oled.fill(0)
                 self.oled.text(str(text), 0, 0)
                 self.oled.show()
-            except Exception as e:
-                print("[ERR] OLED popup:", e)
+            except:
+                print("[ERR] OLED popup")
 
-        # spustíme nový timeout task, ak je timeout zadaný
         if timeout is not None:
             self._popup_task = asyncio.create_task(self._popup_timeout_task(timeout))
 
@@ -118,6 +121,7 @@ class SafeOLED:
 
         if need_refresh:
             await self.refresh()  
+
 boot_disp = None
 disp = None
 def Disp_Init():
@@ -131,8 +135,8 @@ def Disp_Init():
         else:
             raise TypeError("Disp init Fail")
         disp = SafeOLED(boot_disp, i2c1_lock)    
-    except Exception as e:
-        boot_print("[ERR] Display Init:", e)
+    except:
+        boot_print("[ERR] Display Init")
 
 '''
 example:
@@ -146,7 +150,7 @@ await pheripherals.disp.write_lines_dict(lines)
 or
 await pheripherals.disp.write_line(1, f'cnter: {counter}')
 or
-await pheripherals.popup('test', 5)
+await pheripherals.disp.popup('test', 5)
 '''
 
 ################################################################
@@ -162,21 +166,6 @@ def PinMap_Init():
         boot_print("[ERR] Load pinmap_data: ", e)
 
 ################################################################
-# SPI3 for uSD
-spi3 = None
-spi3_ss = None
-spi3_lock = None
-def SPI3_Init():
-    global spi3, spi3_ss, spi3_lock
-    try:
-        spi3 = SPI(3, baudrate=1_000_000)  # clk = B3; miso = B4; mosi = B5
-        spi3_ss = Pin(pinmap_data['SPI3']['NSS'], Pin.OUT_PP, value=True)
-        spi3_lock = asyncio.Lock()
-        boot_print("[OK] SPI3 Init")
-    except Exception as e:
-        boot_print("[ERR] SPI3 Init:", e)
-
-################################################################
 # I2C1 for OLED display and PCB temp sensor (LM75)
 i2c1 = None
 i2c1_lock = None
@@ -188,19 +177,6 @@ def I2C1_Init():
         boot_print("[OK] I2C1 Init")
     except Exception as e:
         boot_print("[ERR] I2C1 Init:", e)
-
-################################################################
-# I2C2 for external ADC (ADS1115)
-i2c2 = None
-i2c2_lock = None
-def I2C2_Init():
-    global i2c2, i2c2_lock
-    try:
-        i2c2 = I2C(2, freq=100000)	        # sck = F1; sda = F0
-        i2c2_lock = asyncio.Lock()
-        boot_print("[OK] I2C2 Init")
-    except Exception as e:
-        boot_print("[ERR] I2C2 Init:", e)
 
 ################################################################
 # Status LED Init
@@ -299,6 +275,7 @@ def WDT_Init():
     except Exception as e:
         boot_print("[ERR] WDT Init:", e)
 
+
 ################################################################
 # DIO Init
 dio = {}
@@ -306,301 +283,19 @@ def DIO_Init():
     try:
         for i in range(1, 16):
             pin_name = pinmap_data['DIO_pins_map'][f'DIO{i}']
-            dio[f'DIO{i}'] = {
-                "pin": Pin(pin_name),
-                "lock": asyncio.Lock()
-            }
+            dio[i] = Pin(pin_name)
         boot_print("[OK] DIO Init")
     except Exception as e:
         boot_print("[ERR] DIO Init:", e)
 
-################################################################ 
-# TIM1 for DO PWM (DO1 - DO4)
-tim1 = None
-def Timer1_Init(config_data):
-    global tim1
-    try:
-        if config_data['timer1']['enable']:
-            tim1 = Timer(1, freq=config_data['timer1']['freq'])
-            boot_print("[OK] Timer1 Init")
-    except Exception as e:
-        boot_print("[ERR] Timer1 Init:", e)
-
-################################################################
-# TIM3 for DO PWM (DO9 - DO12)
-tim3 = None
-def Timer3_Init(config_data):
-    global tim3
-    try:
-        if config_data['timer3']['enable']:
-            tim3 = Timer(3, freq=config_data['timer3']['freq'])
-            boot_print("[OK] Timer3 Init")
-    except Exception as e:
-        boot_print("[ERR] Timer3 Init:", e)
-
-################################################################
-# DO Init
-class SafeDO:
-    def __init__(self, pin_id: int, config_data, tim=None):
-        self.pin_id = pin_id
-        self.config_data = config_data
-        self.tim = tim
-        self.pin = None
-        self.lock = asyncio.Lock()
-        self.setup()
-
-    def setup(self):
-        try:
-            pin_name = pinmap_data['DO_pins_map'][f'DO{self.pin_id}']
-            init_value = self.config_data['DO'][f'DO{self.pin_id}']['init_value']
-            pwm_cfg = self.config_data['DO'][f'DO{self.pin_id}'].get('pwm', {})
-            pwm_enabled = pwm_cfg.get('enable', False)
-            pwm_duty = pwm_cfg.get('duty', 0)
-
-            if pwm_enabled and self.tim is not None:
-                pin = Pin(pin_name, Pin.OUT)
-                ch = (self.pin_id - 1) % 4 + 1
-                self.pin = self.tim.channel(ch, Timer.PWM, pin=pin, pulse_width_percent=pwm_duty)
-            else:
-                self.pin = Pin(pin_name, Pin.OUT_PP, value=init_value)
-
-            boot_print(f"[OK] DO{self.pin_id} Setup")
-
-        except Exception as e:
-            boot_print(f"[ERR] DO{self.pin_id} Setup:", e)
-            self.pin = None
-
-    async def _on_set(self):
-        try:
-            if isinstance(self.pin, Pin):
-                async with self.lock:
-                    self.pin.on()
-            else:
-                raise TypeError("Incorrect instance")
-        except Exception as e:
-            alert_print("[ERR] DO On:", e)
-
-    async def _off_set(self):
-        try:
-            if isinstance(self.pin, Pin):
-                async with self.lock:
-                    self.pin.off()
-            else:
-                raise TypeError("Incorrect instance")
-        except Exception as e:
-            alert_print("[ERR] DO Off:", e)
-
-    async def _duty_set(self, value: int):
-        try:
-            if hasattr(self.pin, "pulse_width_percent"):
-                async with self.lock:
-                    self.pin.pulse_width_percent(value)
-            else:
-                raise TypeError("Incorrect instance")
-        except Exception as e:
-            alert_print("[ERR] DO Duty:", e)
-
-    async def _get(self):
-        try:
-            async with self.lock:
-                if isinstance(self.pin, Pin):
-                    return bool(self.pin.value())
-                else:
-                    return self.pin.pulse_width_percent()
-        except Exception as e:
-            alert_print("[ERR] DO Get:", e)
-            return None
-        
-    async def on(self):
-        try:
-            await self._on_set()
-        except :
-            alert_print("[ERR] DO On:")
-
-    async def off(self):
-        try:
-            await self._off_set()
-        except :
-            alert_print("[ERR] DO Off:")
-
-    async def duty(self, value: int):
-        try:
-            await self._duty_set(value)
-        except:
-            alert_print("[ERR] DO Duty:")
-
-    
-    async def get(self):
-        try:
-            val = await self._get()
-            return val
-        except Exception as e:
-            alert_print("[ERR] DO Get:", e)
-            return None
-do = {}
-def DO_Init(config_data):
-    for i in range(1, 17):
-        if 1 <= i <= 4:
-            do[i] = SafeDO(i, config_data, tim=tim1)
-        elif 9 <= i <= 12:
-            do[i] = SafeDO(i, config_data, tim=tim3)
-        else:
-            do[i] = SafeDO(i, config_data, tim=None)
-'''
-example like Pin:
-  await do[1].on()
-  await stat = do[1].get()    return True/False
-
-example like PWM: 
-  await do[2].duty(75)
-  await duty = do[2].get()    return DutyCycle
-'''
-
-################################################################
-# DI Init
-class SafeDI:
-    def __init__(self, pin_id: int, config_data):
-        self.pin_id = pin_id
-        self.config_data = config_data
-        self.do_dict = do
-        self.lock = asyncio.Lock()
-
-        self.pin = None
-        self.pull_up_pin = None
-        self.counter = 0
-        self.irq_edge = None
-        self.irq_link_to_out = ""
-        self.link_to_out_type = ""
-
-        self.setup()
-
-    def setup(self):
-        try:
-            cfg = self.config_data['DI'][f'DI{self.pin_id}']
-            pin_name = pinmap_data['DI_pins_map'][f'DI{self.pin_id}']
-            pull_up_pin_name = pinmap_data['DI_PU_pins_map'][f'DI{self.pin_id}_PU']
-
-            pull_up_enable = cfg['pull_up_enable']
-            irq_cfg = cfg.get('irq', {})
-            irq_enable = irq_cfg.get('enable', False)
-            self.irq_edge = irq_cfg.get('edge', 'FALLING')
-            self.irq_link_to_out = irq_cfg.get('link_to_out', '')
-            self.link_to_out_type = irq_cfg.get('link_to_out_type', '')
-
-            # Pull-up pin setup
-            self.pull_up_pin = Pin(pull_up_pin_name, Pin.OUT_PP)
-            self.pull_up_pin.value(True if pull_up_enable else False)
-
-            # Input pin setup
-            self.pin = Pin(pin_name, Pin.IN)
-
-            if irq_enable:
-                trigger_type = 0
-                if self.link_to_out_type == 'direct' or self.link_to_out_type == 'reverse':
-                    trigger_type = Pin.IRQ_FALLING | Pin.IRQ_RISING
-                else:
-                    if self.irq_edge == "FALLING":
-                        trigger_type = Pin.IRQ_FALLING
-                    elif self.irq_edge == "RISING":
-                        trigger_type = Pin.IRQ_RISING
-
-                self.pin.irq(trigger=trigger_type, handler=self._irq_handler)
-
-            boot_print(f"[OK] DI{self.pin_id} Setup")
-
-        except Exception as e:
-            boot_print(f"[ERR] DI{self.pin_id} Setup:", e)
-            self.pin = None
-
-    def _irq_handler(self, pin):
-        try:
-            val = pin.value()
-            if (val == 1 and self.irq_edge == "RISING") or \
-               (val == 0 and self.irq_edge == "FALLING"):
-                self.counter += 1
-                if self.counter > 1000000:
-                    self.counter = 0
-
-            if self.irq_link_to_out in self.do_dict:
-                output = self.do_dict[self.irq_link_to_out].pin
-                if isinstance(output, Pin):
-                    if self.link_to_out_type == "toggle":
-                        output.value(not output.value())
-                    elif self.link_to_out_type == "direct":
-                        output.value(val)
-                    elif self.link_to_out_type == "reverse":
-                        output.value(not val)
-        except Exception as e:
-            boot_print(f"[ERR] DI{self.pin_id} IRQ:", e)
-
-    async def get(self):
-        try:
-            async with self.lock:
-                if self.pin:
-                    return bool(self.pin.value())
-                return None
-        except Exception as e:
-            alert_print(f"[ERR] DI{self.pin_id} Get:", e)
-            return None
-
-    async def count(self):
-        async with self.lock:
-            return self.counter
-
-    async def reset_count(self):
-        async with self.lock:
-            self.counter = 0
-di = {}
-def DI_Init(config_data):
-    for i in range(1, 17):
-        di[i] = SafeDI(i, config_data)
-
-################################################################
-# ADC Init
-class SafeADC:
-    def __init__(self, pin_id: int):
-        self.pin_id = pin_id
-        self.lock = asyncio.Lock()
-        self.pin = None
-        self.setup()
-
-    def setup(self):
-        try:
-            pin_name = pinmap_data['ADC_pins_map'][f'ADC{self.pin_id}']
-            self.pin = ADC(pin_name)
-            boot_print(f"[OK] AI{self.pin_id} Setup")
-        except Exception as e:
-            boot_print(f"[ERR] AI{self.pin_id} Setup:", e)
-            self.pin = None
-
-    async def get(self):
-        try:
-            async with self.lock:
-                if self.pin is not None:
-                    return self.pin.read()
-                else:
-                    raise Exception("Not initialized")
-        except Exception as e:
-            boot_print(f"[ERR] AI{self.pin_id} Read:", e)
-            return None
-ai = {}
-def AI_Init():
-    for i in range(1, 5):
-        ai[i] = SafeADC(i)
-'''
-example:
-  await adc = ai[1].get()     return ADCValue
-'''
 
 ################################################################
 # Ethernet for MQTT communication
 eth = None
-eth_lock = None
 def ETH_Init(config_data):
-    global eth, eth_lock
+    global eth
     try:
         eth = network.LAN()
-        eth_lock = asyncio.Lock()
         eth.active(True)
         ip_address =	config_data['eth']['ip']
         if ip_address != "DHCP":
@@ -610,7 +305,7 @@ def ETH_Init(config_data):
             eth.ifconfig((ip_address, subnet, gateway, dns))
         attempts = 0
         if not eth.isconnected():
-            boot_print('[INFO] ETH Connecting...')
+            boot_print('[INFO] ETH Connecting..')
             while not eth.isconnected() and attempts < 15:
                 utime.sleep(1)
                 attempts += 1
@@ -620,128 +315,397 @@ def ETH_Init(config_data):
         boot_print("[OK] ETH Init")
         boot_print("[INFO] IP:")
         boot_print(f" {eth.ifconfig()[0]}")
+    except:
+        boot_print("[ERR] ETH Init")
+
+
+################################################################ 
+# TIM1 for DO PWM (DO1 - DO4)
+tim1 = None
+def Timer1_Init(config_data):
+    global tim1
+    try:
+        tim1 = Timer(1, freq=config_data['timer1']['freq'])
+        boot_print("[OK] Timer1 Init")
     except Exception as e:
-        boot_print("[ERR] ETH Init:", e)
+        boot_print("[ERR] Timer1 Init:", e)
+
+
+################################################################
+# TIM3 for DO PWM (DO9 - DO12)
+tim3 = None
+def Timer3_Init(config_data):
+    global tim3
+    try:
+        tim3 = Timer(3, freq=config_data['timer3']['freq'])
+        boot_print("[OK] Timer3 Init")
+    except Exception as e:
+        boot_print("[ERR] Timer3 Init:", e)
+
+
+################################################################
+# DO Init
+class SafeDO:
+    def __init__(self, pin_id: int, config_data, tim=None):
+        self.pin_id = pin_id
+        self.config_data = config_data
+        self.pin = None
+        self.tim = tim
+        self.lock = asyncio.Lock()
+        self.type = None # state || pwm
+        self.setup()
+
+    def setup(self):
+        pin_name = pinmap_data['DO_pins_map'][f'DO{self.pin_id}']
+        init_value = self.config_data['DO'][f'DO{self.pin_id}']['init_value']
+        pwm_cfg = self.config_data['DO'][f'DO{self.pin_id}'].get('pwm', {})
+        pwm_enabled = pwm_cfg.get('enable', False)
+        pwm_duty = pwm_cfg.get('duty', 0)
+
+        if pwm_enabled and self.tim is not None:
+            pin = Pin(pin_name, Pin.OUT)
+            ch = (self.pin_id - 1) % 4 + 1
+            self.pin = self.tim.channel(ch, Timer.PWM, pin=pin, pulse_width_percent=pwm_duty)
+            self.type = 'pwm'
+        else:
+            self.pin = Pin(pin_name, Pin.OUT_PP, value=init_value)
+            self.type = 'state'
+  
+    def get_type(self):
+        return self.type
+
+    async def on(self):
+        async with self.lock:
+            if self.type == 'state':
+                self.pin.on()
+                return True
+            alert_print(f'[WAR] Set DO{self.pin_id} On', 3)
+            return False 
+
+    async def off(self):
+        async with self.lock:
+            if self.type == 'state':
+                self.pin.off()
+                return True
+            alert_print(f'[WAR] Set DO{self.pin_id} Off', 3)
+            return False 
+
+    async def duty(self, value: int):
+        async with self.lock:
+            if self.type == 'pwm':
+                self.pin.pulse_width_percent(value)
+                return True
+            alert_print(f'[WAR] Set DO{self.pin_id} Duty', 3)
+            return False 
+
+    async def get_state(self):
+        async with self.lock:
+            if self.type == 'state':
+                return bool(self.pin.value())
+            alert_print(f'[WAR] Read DO{self.pin_id} State', 3)
+            return None
+    
+    async def get_duty(self):
+        async with self.lock:
+            if self.type == 'pwm':
+                return round(self.pin.pulse_width_percent())
+            alert_print(f'[WAR] Read DO{self.pin_id} Duty', 3)
+            return None
+    
+do = {}
+def DO_Init(config_data):
+    for i in range(1, 17):
+        try:
+            if 1 <= i <= 4:
+                do[i] = SafeDO(i, config_data, tim=tim1)
+            elif 9 <= i <= 12:
+                do[i] = SafeDO(i, config_data, tim=tim3)
+            else:
+                do[i] = SafeDO(i, config_data, tim=None)
+            boot_print(f"[OK] DO{i}")
+        except:
+            boot_print(f"[ERR] DO{i}")
+'''
+example get type:
+  do[1].get_type()            return: 'state' | 'pwm'
+
+example like Pin:
+  await do[1].on()                  return: True | False
+  await do[1].off()                 return: True | False
+  await stat = do[1].get_state()    return: True | False | None
+
+example like PWM: 
+  await do[2].duty(75)              return: True | False
+  await duty = do[2].get_duty()     return: DutyCycle | None
+'''
+
+
+################################################################
+# DI Init
+class SafeDI:
+    def __init__(self, pin_id: int, config_data):
+        self.pin_id = pin_id
+        self.config_data = config_data
+        self.do_dict = do
+        self.lock = asyncio.Lock() # Because of 2 thread (frequency, states)
+        self.type = None # state || counter
+
+        self.pin = None
+        self.pull_up_pin = None
+        self.counter = 0
+        self.irq_edge = None
+        self.meas_freq = None
+        self.irq_link_to_out = ""
+        self.link_to_out_type = ""
+
+        self.setup()
+
+    def setup(self):
+        cfg = self.config_data['DI'][f'DI{self.pin_id}']
+        pin_name = pinmap_data['DI_pins_map'][f'DI{self.pin_id}']
+        pull_up_pin_name = pinmap_data['DI_PU_pins_map'][f'DI{self.pin_id}_PU']
+
+        pull_up_enable = cfg['pull_up_enable']
+
+        irq_cfg = cfg['irq']  # predpokladáme, že vždy existuje
+        irq_enable = irq_cfg['enable']
+        self.irq_edge = irq_cfg['edge']
+        self.meas_freq = irq_cfg['meas_frequency']
+        self.irq_link_to_out = irq_cfg['link_to_out']
+        self.link_to_out_type = irq_cfg['link_to_out_type']
+
+        self.pull_up_pin = Pin(pull_up_pin_name, Pin.OUT_PP)
+        self.pull_up_pin.value(True if pull_up_enable else False)
+
+        self.pin = Pin(pin_name, Pin.IN)
+
+        if irq_enable:
+            trigger_type = 0
+            if self.link_to_out_type == 'direct' or self.link_to_out_type == 'reverse':
+                trigger_type = Pin.IRQ_FALLING | Pin.IRQ_RISING
+            else:
+                if self.irq_edge == "FALLING":
+                    trigger_type = Pin.IRQ_FALLING
+                elif self.irq_edge == "RISING":
+                    trigger_type = Pin.IRQ_RISING
+
+            self.pin.irq(trigger=trigger_type, handler=self._irq_handler)
+        
+        if irq_enable and self.meas_freq:
+            self.type = 'counter'
+        else:
+            self.type = 'state'
+
+    def _irq_handler(self, pin):
+        val = pin.value()
+        if (val == 1 and self.irq_edge == "RISING") or \
+            (val == 0 and self.irq_edge == "FALLING"):
+            self.counter += 1
+            if self.counter > 1000000:
+                self.counter = 0
+
+        if self.irq_link_to_out in self.do_dict:
+            output = self.do_dict[self.irq_link_to_out].pin
+            if isinstance(output, Pin):
+                if self.link_to_out_type == "toggle":
+                    output.value(not output.value())
+                elif self.link_to_out_type == "direct":
+                    output.value(val)
+                elif self.link_to_out_type == "reverse":
+                    output.value(not val)
+
+    def get_type(self):
+        return self.type
+
+    async def get_state(self):
+        async with self.lock:
+            if self.type == 'state':
+                return bool(self.pin.value())
+            alert_print(f'[WAR] Read DI{self.pin_id} State', 3)
+            return None
+    
+    async def get_count(self):
+        async with self.lock:
+            if self.type == 'counter':
+                return self.counter
+            alert_print(f'[WAR] Read DI{self.pin_id} Counter', 3)
+            return None
+
+    async def reset_count(self):
+        async with self.lock:
+            self.counter = 0
+
+di = {}
+def DI_Init(config_data):
+    for i in range(1, 17):
+        try:
+            di[i] = SafeDI(i, config_data)
+            boot_print(f"[OK] DI{i}")
+        except:
+            boot_print(f"[ERR] DI{i}")
+'''
+example get type:
+  di[1].get_type()            return: 'state' | 'counter'
+
+example like Pin:
+  await stat = di[1].get_state()    return: True | False | None
+
+example like counter: 
+  await stat = di[1].get_count()    return: NumOfPulses | None
+  await stat = di[1].reset_count()
+'''
+
+################################################################
+# ADC Init
+class SafeADC:
+    def __init__(self, pin_id: int):
+        self.pin_id = pin_id
+        self.pin = None
+        self.pin_name = pinmap_data['ADC_pins_map'][f'ADC{self.pin_id}']
+        self.pin = ADC(self.pin_name)
+        
+    async def get(self):
+        try:
+            return self.pin.read()
+        except:
+            alert_print(f"[ERR] Read AI{self.pin_id}")
+            return None
+
+ai = {}
+def AI_Init():
+    for i in range(1, 5):
+        try:
+            ai[i] = SafeADC(i)
+            boot_print(f"[OK] AI{i}")
+        except:
+            boot_print(f"[ERR] AI{i}")
+'''
+example:
+   adc = await ai[1].get()     return ADCValue
+'''
 
 ################################################################
 # RTC Init
 class SafeRTC:
-    def __init__(self, rtc, rtc_lock):
-        self.rtc = rtc
-        self.lock = rtc_lock
+    def __init__(self):
+        self.rtc = RTC()
 
     async def get_datetime(self):
-        async with self.lock:
-            try:
-                dt = self.rtc.datetime()
-                return dt
-            except Exception as e:
-                boot_print("[ERR] RTC get datetime:", e)
-                return None
+        try:
+            dt = self.rtc.datetime()
+            return dt
+        except:
+            alert_print("[ERR] RTC get datetime:")
+            return None
+
+    async def set_datetime(self):
+        try:
+            global eth
+            if eth and eth.isconnected():
+                ntptime.settime()
+                alert_print("[OK] RTC set from NTP")
+                return True
+            else:
+                alert_print("[ERR] RTC set from NTP")
+                return False
+        except:
+            alert_print("[ERR] RTC set from NTP")
+            return False
+        
 rtc = None
 def RTC_Init():
     global rtc
     try:
-        rtc = SafeRTC(RTC(), asyncio.Lock())
+        rtc = SafeRTC()
         boot_print("[OK] RTC Init")
-    except Exception as e:
-            boot_print("[ERR] RTC Init:", e)
+    except:
+        boot_print("[ERR] RTC Init")
+'''
+example:
+await pheripherals.rtc.get_datetime()
+await pheripherals.rtc.set_datetime()
+'''
+
 
 ################################################################
 # LM75 Init
 class SafeLM75:
-    def __init__(self, i2c, i2c_lock, addr=0x48):
+    def __init__(self, i2c, i2c_lock):
         self.i2c_lock = i2c_lock
-        try:
-            self.sensor = LM75(i2c, addr)
-            if self.sensor.begin():
-                boot_print("[OK] LM75 Init")
-            else:
-                raise Exception("Not responding")
-        except Exception as e:
-            boot_print("[ERR] LM75 Init:", e)
-
+        self.sensor = LM75(i2c, 0x48)
+        if not self.sensor.begin():
+            raise Exception("Not responding")            
+        
     async def get(self):
         async with self.i2c_lock:
             try:
                 return self.sensor.read_temp()
-            except Exception as e:
-                boot_print("[ERR] LM75 get:", e)
+            except:
+                alert_print("[ERR] LM75 get")
                 return None
 lm75 = None
 def LM75_Init():
     global lm75
-    lm75 = SafeLM75(i2c1, i2c1_lock)
+    try:
+        lm75 = SafeLM75(i2c1, i2c1_lock)
+        boot_print("[OK] LM75 Init")
+    except:
+        boot_print("[ERR] LM75 Init")
+'''
+example:
+await pheripherals.lm75.get()
+'''
+
 
 #####################################################################x
 # ADS1115 Init
 class SafeADS1115:
-    def __init__(self, i2c, i2c_lock, addr=0x48):
-        self.i2c_lock = i2c_lock
-        try:
-            self.ads = ADS1115(i2c, addr)
-            if self.ads.begin():
-                boot_print("[OK] ADS1115 Init")
-            else:
-                raise Exception("Not responding")
-        except Exception as e:
-            boot_print("[ERR] ADS1115 Init:", e)
+    def __init__(self):
+        self.i2c = I2C(2, freq=100000)	        # sck = F1; sda = F0
+        self.ads = ADS1115(self.i2c, 0x48)
+        if not self.ads.begin():
+            raise Exception("Not responding")            
 
     async def get(self, channel):
-        async with self.i2c_lock:
-            try:
-                return self.ads.read_adc(channel - 1)
-            except Exception as e:
-                boot_print(f"[ERR] ADS1115 get AD{channel}:", e)
-                return None
+        try:
+            return self.ads.read_adc(channel - 1)
+        except:
+            alert_print(f"[ERR] ADS1115 get AD{channel}")
+            return None
+        
 ads1115 = None
 def ADS1555_Init():
     global ads1115
-    ads1115 = SafeADS1115(i2c2, i2c2_lock)
+    try:
+        ads1115 = SafeADS1115()
+        boot_print("[OK] ADS1115 Init")
+    except:
+        boot_print("[ERR] ADS1115 Init:")
+'''
+example:
+await pheripherals.ads1115.get(1)
+'''
 
 #####################################################################x
 # uSD Card Init
 class SafeSDCard:
-    def __init__(self, spi, cs_pin, spi_lock):
-        self.spi = spi
-        self.cs = cs_pin if isinstance(cs_pin, Pin) else Pin(cs_pin, Pin.OUT_PP, value=True)
+    def __init__(self):
+        self.spi = SPI(3, baudrate=1_000_000)  # clk = B3; miso = B4; mosi = B5
+        self.cs = Pin(pinmap_data['SPI3']['NSS'], Pin.OUT_PP, value=True)
         self.card = SDCard(self.spi, self.cs)
-        self.spi_lock = spi_lock
-
         try:
             uos.umount("/sd")
         except OSError:
             pass
-        try:
-            uos.mount(self.card, "/sd")
-            boot_print("[OK] uSD mounted at /sd")
-        except Exception as e:
-            boot_print("[ERR] uSD mount:", e)
-
-    async def read_json(self, filepath):
-        async with self.spi_lock:
-            try:
-                with open(filepath, "r") as f:
-                    return ujson.load(f)
-            except Exception as e:
-                boot_print("[ERR] Read data:", e)
-                return None
-
-    async def write_json(self, filepath, data):
-        async with self.spi_lock:
-            try:
-                with open(filepath, "w") as f:
-                    ujson.dump(data, f)
-                return True
-            except Exception as e:
-                boot_print("[ERR] Write data:", e)
-                return False
+        uos.mount(self.card, "/sd")
+        
 sd = None
 def uSD_Init():
     global sd
-    sd = SafeSDCard(spi=spi3, cs_pin=spi3_ss, spi_lock=spi3_lock)
-
-#####################################################################
-
+    try:
+        sd = SafeSDCard()
+        boot_print("[OK] uSD mounted at /sd")
+    except:
+        boot_print("[ERR] uSD mount")
 
 
