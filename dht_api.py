@@ -36,9 +36,16 @@ def DHT_Init(dht_config_data):
         pheripherals.boot_print("[ERR] DHT Init")
 
 
-async def measure_dht_task(idx: int, delay: float = 10):
+async def measure_dht_task(delay: float = 5):
+    for idx in range(1, 16):
+        if dht[idx]:
+            temp, hum = dht[idx].get_sensor_data()
+            await shared_data.dht_temp[idx].set(temp)
+            await shared_data.dht_hum[idx].set(hum)
     while True:
-        temp, hum = dht[idx].get_sensor_data()
-        await shared_data.dht_temp[idx].set(temp)
-        await shared_data.dht_hum[idx].set(hum)
-        await asyncio.sleep(delay)
+        for idx in range(1, 16):
+            if dht[idx]:
+                temp, hum = dht[idx].get_sensor_data()
+                await shared_data.dht_temp[idx].set(temp)
+                await shared_data.dht_hum[idx].set(hum)
+                await asyncio.sleep(delay)

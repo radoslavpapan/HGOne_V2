@@ -11,7 +11,7 @@ from drivers.sh1106 import SH1106_I2C
 def boot_print(text):
     print(text)
     try:
-        pass # boot_disp.println(text)
+        boot_disp.println(text)
     except:
         pass
     if '[ERR]' in text:
@@ -589,6 +589,7 @@ example:
 class SafeRTC:
     def __init__(self):
         self.rtc = RTC()
+        self.set_datetime()
 
     async def get_datetime(self):
         try:
@@ -598,18 +599,18 @@ class SafeRTC:
             alert_print("[ERR] RTC get datetime:")
             return None
 
-    async def set_datetime(self):
+    def set_datetime(self):
         try:
             global eth
             if eth and eth.isconnected():
                 ntptime.settime()
-                alert_print("[OK] RTC set from NTP")
+                boot_print("[OK] RTC set from NTP")
                 return True
             else:
-                alert_print("[ERR] RTC set from NTP")
+                boot_print("[ERR] RTC set from NTP")
                 return False
         except:
-            alert_print("[ERR] RTC set from NTP")
+            boot_print("[ERR] RTC set from NTP")
             return False
         
 rtc = None

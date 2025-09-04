@@ -5,6 +5,7 @@ import shared_data
 
 import pheripherals
 
+cfg = None
 device_name = None
 device_address = None
 device_prefix = None
@@ -20,13 +21,13 @@ def MQTT_callback(topic, payload):
     if len(parsed_topic) < 5:
         return
     
-    do = parsed_topic[3]
+    do = parsed_topic[4]
     try:
         pin_index = int(do[2:])
     except ValueError:
         return
     
-    do_type = parsed_topic[4]
+    do_type = parsed_topic[5]
     
     if do_type == 'State':
         if payload == 'true':
@@ -44,9 +45,9 @@ def MQTT_Subscription_Set(prefix, config_data):
     for i in range(1, 17):
         if config_data['DO'][f'DO{i}']['mqtt']['subscribe']:
             if pheripherals.do[i].type == 'state':
-                subscribed_topics.append(f"{prefix}/DO{i}/State")
+                subscribed_topics.append(f"{prefix}/Set/DO{i}/State")
             elif pheripherals.do[i].type == 'pwm':
-                subscribed_topics.append(f"{prefix}/DO{i}/Duty")
+                subscribed_topics.append(f"{prefix}/Set/DO{i}/Duty")
     
     for topic in subscribed_topics:
         mqtt_client.subscribe(topic=topic, qos=1)
@@ -108,12 +109,14 @@ def build_publish_list(prefix, config_data, dht_config_data):
             publish_topics.append([topic, interval, lambda i=i: shared_data.dht_hum[i].get()])
 
 def MQTT_Init(config_data, dht_config_data):
+    global cfg
     global device_name
     global device_address
     global device_prefix
     global mqtt_client
     global mqtt_client_lock
     try:
+        cfg = config_data
         mqtt_client_lock = asyncio.Lock()
 
         device_name = config_data['device']['dev_name']
@@ -142,26 +145,50 @@ def MQTT_Init(config_data, dht_config_data):
                     MQTT_Subscription_Set(device_prefix, config_data)
                     build_publish_list(device_prefix, config_data, dht_config_data)
                     print('[OK] MQTT Init')
+                    pheripherals.boot_print('[OK] MQTT Init')
                     break
                 except:
                     attempts += 1
                     utime.sleep(1)
             else:
                 print("[ERR] MQTT Init")
+                pheripherals.boot_print("[ERR] MQTT Init")
     
     except:
         print("[ERR] MQTT Init")
+        pheripherals.boot_print("[ERR] MQTT Init")
         return False
     
 async def check_mqtt_subscribe_task(delay: float = 0.1):
+    global mqtt_client
     while True:
-        async with mqtt_client_lock:
-            mqtt_client.check_msg()
+        try:
+            async with mqtt_client_lock:
+                mqtt_client.check_msg()
+        except:
+            await pheripherals.disp.popup('[WARR] MQTT Lost', 0.5)
+            try:
+                mqtt_client.connect()
+                mqtt_client.set_callback(MQTT_callback)
+                MQTT_Subscription_Set(device_prefix, cfg)                
+            except:
+                pass
         await asyncio.sleep(delay)
+            
 
 async def publish_mqtt_task(topic, interval, func):
+    global mqtt_client
     while True:
-        value = await func()
-        async with mqtt_client_lock:
-            mqtt_client.publish(topic, str(value), True)
+        try:
+            value = await func()
+            async with mqtt_client_lock:
+                mqtt_client.publish(topic, str(value), True)
+        except:
+            try:
+                mqtt_client.connect()
+                mqtt_client.set_callback(MQTT_callback)
+                MQTT_Subscription_Set(device_prefix, cfg)
+            except:
+                pass
         await asyncio.sleep(interval)
+

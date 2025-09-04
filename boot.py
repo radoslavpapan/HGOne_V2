@@ -21,10 +21,6 @@ pheripherals.uSD_Init()
 
 config.Config_Init()
 
-pheripherals.ETH_Init(config.config_data)
-
-pheripherals.RTC_Init()
-
 pheripherals.I2C1_Init()
 
 pheripherals.Disp_Init()
@@ -54,13 +50,17 @@ pheripherals.LM75_Init()
 
 pheripherals. ADS1555_Init()
 
-shared_data.SharedData_Init(config.config_data)
+shared_data.SharedData_Init(config.config_data, config.dht_config_data)
+
+pheripherals.ETH_Init(config.config_data)
+
+pheripherals.RTC_Init()
 
 dht_api.DHT_Init(config.dht_config_data)
 
-pheripherals.disp_clear()
-
 mqtt_api.MQTT_Init(config.config_data, config.dht_config_data)
+
+pheripherals.disp_clear()
 
 print('')
 
