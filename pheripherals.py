@@ -373,7 +373,18 @@ class SafeDO:
   
     def get_type(self):
         return self.type
-
+    
+    async def on_timeout(self, duration: float):
+        async with self.lock:
+            if self.type != 'state':
+                alert_print(f'[WAR] Set DO{self.pin_id} On', 3)
+                return False
+            self.pin.on()
+        await asyncio.sleep(duration)
+        async with self.lock:
+            self.pin.off()
+        return True
+        
     async def on(self):
         async with self.lock:
             if self.type == 'state':
@@ -503,17 +514,22 @@ class SafeDI:
             self.counter += 1
             if self.counter > 1000000:
                 self.counter = 0
-
-        if self.irq_link_to_out in self.do_dict:
-            output = self.do_dict[self.irq_link_to_out].pin
-            if isinstance(output, Pin):
-                if self.link_to_out_type == "toggle":
-                    output.value(not output.value())
-                elif self.link_to_out_type == "direct":
-                    output.value(val)
-                elif self.link_to_out_type == "reverse":
-                    output.value(not val)
-
+        
+        if self.irq_link_to_out:
+            try:
+                idx_of_do_pin = int(self.irq_link_to_out[2:])
+                if idx_of_do_pin in self.do_dict:
+                    output = self.do_dict[idx_of_do_pin].pin
+                    if isinstance(output, Pin):
+                        if self.link_to_out_type == "toggle":
+                            output.value(not output.value())
+                        elif self.link_to_out_type == "direct":
+                            output.value(val)
+                        elif self.link_to_out_type == "reverse":
+                            output.value(not val)
+            except:
+                pass
+             
     def get_type(self):
         return self.type
 

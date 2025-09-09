@@ -132,4 +132,3 @@ def SharedData_Init(config_data, dht_config_data):
     except Exception as e:
         pheripherals.boot_print(f"[ERR] Data Init: {e}")
 
-

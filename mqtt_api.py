@@ -34,11 +34,24 @@ def MQTT_callback(topic, payload):
             asyncio.create_task(pheripherals.do[pin_index].on())
         elif payload == 'false':
             asyncio.create_task(pheripherals.do[pin_index].off())
+        else:
+            try:
+                timeout = float(payload)
+            except:
+                timeout = 0.5    # when no payload
+            asyncio.create_task(pheripherals.do[pin_index].on_timeout(timeout))
+            
+            
     elif do_type == 'Duty':
-        try:
-            asyncio.create_task(pheripherals.do[pin_index].duty(int(payload)))
-        except:
-            pass    
+        if payload == 'true':
+            asyncio.create_task(pheripherals.do[pin_index].duty(100))
+        elif payload == 'false':
+            asyncio.create_task(pheripherals.do[pin_index].duty(0))
+        else:
+            try:
+                asyncio.create_task(pheripherals.do[pin_index].duty(int(payload)))
+            except:
+                pass    
 
 def MQTT_Subscription_Set(prefix, config_data):
     subscribed_topics = []
@@ -191,4 +204,6 @@ async def publish_mqtt_task(topic, interval, func):
             except:
                 pass
         await asyncio.sleep(interval)
+
+
 

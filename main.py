@@ -1,4 +1,4 @@
-exec(open('boot.py').read())
+exec(open('boot.py').read()) # Must be commented with real Run
 
 import utime
 import uasyncio as asyncio

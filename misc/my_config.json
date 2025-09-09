@@ -39,185 +39,163 @@
     "PCBTemp": {
         "name": "PCBTemp",
         "mqtt": {
-            "publish": true,
-            "interval": 5
+            "publish": true, "qos_pub": 0, "interval": 5
+        },
+        "homeassistant":{
+            "type": "sensor"
         }
     },
     "DO": {
         "DO1": {
             "name": "WaterPump",
             "init_value": false,
-            "pwm": {
-                "enable": false,
-                "duty": 0
-            },
-            "mqtt": {
-                "subscribe": true,
-                "publish": true,
-                "interval": 2
+            "pwm": { "enable": false, "duty": 50 },
+            "mqtt": { "subscribe": true, "qos_sub": 1, "publish": true, "qos_pub": 0, "interval": 2 },
+            "homeassistant":{
+                "type": "switch",
+                "on_timeout": null
             }
         },
         "DO2": {
             "name": "WaterBoil",
             "init_value": false,
-            "pwm": {
-                "enable": false,
-                "duty": 0
-            },
-            "mqtt": {
-                "subscribe": true,
-                "publish": true,
-                "interval": 2
+            "pwm": { "enable": false, "duty": 50 },
+            "mqtt": { "subscribe": true, "qos_sub": 1, "publish": true, "qos_pub": 0, "interval": 2 },
+            "homeassistant":{
+                "type": "switch",
+                "on_timeout": null
             }
         },
         "DO3": {
             "name": "GgardenLight",
             "init_value": false,
-            "pwm": {
-                "enable": false,
-                "duty": 0
-            },
-            "mqtt": {
-                "subscribe": true,
-                "publish": true,
-                "interval": 2
+            "pwm": { "enable": false, "duty": 50 },
+            "mqtt": { "subscribe": true, "qos_sub": 1, "publish": true, "qos_pub": 0, "interval": 2 },
+            "homeassistant":{
+                "type": "switch",
+                "on_timeout": null
             }
         },
         "DO4": {
             "name": "GardenPool",
             "init_value": false,
-            "pwm": {
-                "enable": false,
-                "duty": 0
-            },
-            "mqtt": {
-                "subscribe": true,
-                "publish": true,
-                "interval": 2
+            "pwm": { "enable": false, "duty": 50 },
+            "mqtt": { "subscribe": true, "qos_sub": 1, "publish": true, "qos_pub": 0, "interval": 2 },
+            "homeassistant":{
+                "type": "switch",
+                "on_timeout": null
             }
         },
         "DO5": {
             "name": "DO5",
             "init_value": false,
-            "mqtt": {
-                "subscribe": false,
-                "publish": false,
-                "interval": 2
+            "mqtt": { "subscribe": false, "qos_sub": 1, "publish": false, "qos_pub": 0, "interval": 2 },
+            "homeassistant":{
+                "type": "switch",
+                "on_timeout": null
             }
         },
         "DO6": {
             "name": "DO6",
             "init_value": false,
-            "mqtt": {
-                "subscribe": false,
-                "publish": false,
-                "interval": 2
+            "mqtt": { "subscribe": false, "qos_sub": 1, "publish": false, "qos_pub": 0, "interval": 2 },
+            "homeassistant":{
+                "type": "switch",
+                "on_timeout": null
             }
         },
         "DO7": {
             "name": "DO7",
             "init_value": false,
-            "mqtt": {
-                "subscribe": false,
-                "publish": false,
-                "interval": 2
+            "mqtt": { "subscribe": false, "qos_sub": 1, "publish": false, "qos_pub": 0, "interval": 2 },
+            "homeassistant":{
+                "type": "switch",
+                "on_timeout": null
             }
         },
         "DO8": {
             "name": "DO8",
             "init_value": false,
-            "mqtt": {
-                "subscribe": false,
-                "publish": false,
-                "interval": 2
+            "mqtt": { "subscribe": false, "qos_sub": 1, "publish": false, "qos_pub": 0, "interval": 2 },
+            "homeassistant":{
+                "type": "switch",
+                "on_timeout": null
             }
         },
         "DO9": {
             "name": "GarrageGate",
             "init_value": false,
-            "pwm": {
-                "enable": false,
-                "duty": 0
-            },
-            "mqtt": {
-                "subscribe": true,
-                "publish": false,
-                "interval": 2
+            "pwm": { "enable": false, "duty": 50 },
+            "mqtt": { "subscribe": true, "qos_sub": 1, "publish": false, "qos_pub": 0, "interval": 2 },
+            "homeassistant":{
+                "type": "button",
+                "on_timeout": 0.5
             }
         },
         "DO10": {
             "name": "MainGate",
             "init_value": false,
-            "pwm": {
-                "enable": false,
-                "duty": 0
-            },
-            "mqtt": {
-                "subscribe": true,
-                "publish": false,
-                "interval": 2
+            "pwm": { "enable": false, "duty": 50 },
+            "mqtt": { "subscribe": true, "qos_sub": 1, "publish": false, "qos_pub": 0, "interval": 2 },
+            "homeassistant":{
+                "type": "button",
+                "on_timeout": 0.25
             }
         },
         "DO11": {
-            "name": "Test",
+            "name": "DO11",
             "init_value": false,
-            "pwm": {
-                "enable": false,
-                "duty": 0
-            },
-            "mqtt": {
-                "subscribe": false,
-                "publish": false,
-                "interval": 2
+            "pwm": { "enable": false, "duty": 50 },
+            "mqtt": { "subscribe": false, "qos_sub": 1, "publish": false, "qos_pub": 0, "interval": 2 },
+            "homeassistant":{
+                "type": "switch",
+                "on_timeout": null
             }
         },
         "DO12": {
             "name": "IrrigRound5",
             "init_value": false,
-            "pwm": {
-                "enable": false,
-                "duty": 50
-            },
-            "mqtt": {
-                "subscribe": true,
-                "publish": true,
-                "interval": 2
+            "pwm": { "enable": false, "duty": 50 },
+            "mqtt": { "subscribe": true, "qos_sub": 1, "publish": true, "qos_pub": 0, "interval": 2 },
+            "homeassistant":{
+                "type": "switch",
+                "on_timeout": 0.1
             }
         },
         "DO13": {
             "name": "IrrigRound4",
             "init_value": false,
-            "mqtt": {
-                "subscribe": true,
-                "publish": true,
-                "interval": 2
+            "mqtt": { "subscribe": true, "qos_sub": 1, "publish": true, "qos_pub": 0, "interval": 2 },
+            "homeassistant":{
+                "type": "switch",
+                "on_timeout": 0.1
             }
         },
         "DO14": {
             "name": "IrrigRound3",
             "init_value": false,
-            "mqtt": {
-                "subscribe": true,
-                "publish": true,
-                "interval": 2
+            "mqtt": { "subscribe": true, "qos_sub": 1, "publish": true, "qos_pub": 0, "interval": 2 },
+            "homeassistant":{
+                "type": "switch",
+                "on_timeout": 0.1
             }
         },
         "DO15": {
             "name": "IrrigRound2",
             "init_value": false,
-            "mqtt": {
-                "subscribe": true,
-                "publish": true,
-                "interval": 2
+            "mqtt": { "subscribe": true, "qos_sub": 1, "publish": true, "qos_pub": 0, "interval": 2 },
+            "homeassistant":{
+                "type": "switch",
+                "on_timeout": 0.1
             }
         },
         "DO16": {
             "name": "IrrigRound1",
             "init_value": false,
-            "mqtt": {
-                "subscribe": true,
-                "publish": true,
-                "interval": 2
+            "mqtt": { "subscribe": true, "qos_sub": 1, "publish": true, "qos_pub": 0, "interval": 2 },
+            "homeassistant":{
+                "type": "switch",
+                "on_timeout": 360
             }
         }
     },
@@ -232,17 +210,10 @@
                 "link_to_out": "",
                 "link_to_out_type": ""
             },
-            "map": {
-                "enable": true,
-                "raw_min": 0,
-                "raw_max": 680,
-                "out_min": 0,
-                "out_max": 59.5,
-                "unit": "m/s"
-            },
-            "mqtt": {
-                "publish": true,
-                "interval": 2
+            "map": { "enable": true, "raw_min": 0, "raw_max": 680, "out_min": 0, "out_max": 59.5, "unit": "m/s" },
+            "mqtt": { "publish": true, "qos_pub": 0, "interval": 2 },
+            "homeassistant":{
+                "type": "sensor"
             }
         },
         "DI2": {
@@ -255,17 +226,10 @@
                 "link_to_out": "DO3",
                 "link_to_out_type": "reverse"
             },
-            "map": {
-                "enable": false,
-                "raw_min": 0,
-                "raw_max": 0,
-                "out_min": 0,
-                "out_max": 0,
-                "unit": ""
-            },
-            "mqtt": {
-                "publish": true,
-                "interval": 5
+            "map": { "enable": false, "raw_min": 0, "raw_max": 0, "out_min": 0, "out_max": 0, "unit": "" },
+            "mqtt": { "publish": false, "qos_pub": 0, "interval": 5 },
+            "homeassistant":{
+                "type": "binary_sensor"
             }
         },
         "DI3": {
@@ -276,19 +240,12 @@
                 "edge": "",
                 "meas_frequency": false,
                 "link_to_out": "",
-                "link_to_out_type": ""
+                "link_to_out_type": "direct"
             },
-            "map": {
-                "enable": false,
-                "raw_min": 0,
-                "raw_max": 0,
-                "out_min": 0,
-                "out_max": 0,
-                "unit": ""
-            },
-            "mqtt": {
-                "publish": false,
-                "interval": 5
+            "map": { "enable": false, "raw_min": 0, "raw_max": 0, "out_min": 0, "out_max": 0, "unit": "" },
+            "mqtt": { "publish": false, "qos_pub": 0, "interval": 5 },
+            "homeassistant":{
+                "type": "binary_sensor"
             }
         },
         "DI4": {
@@ -299,19 +256,12 @@
                 "edge": "",
                 "meas_frequency": false,
                 "link_to_out": "",
-                "link_to_out_type": ""
+                "link_to_out_type": "toggle"
             },
-            "map": {
-                "enable": false,
-                "raw_min": 0,
-                "raw_max": 0,
-                "out_min": 0,
-                "out_max": 0,
-                "unit": ""
-            },
-            "mqtt": {
-                "publish": false,
-                "interval": 5
+            "map": { "enable": false, "raw_min": 0, "raw_max": 0, "out_min": 0, "out_max": 0, "unit": "" },
+            "mqtt": { "publish": false, "qos_pub": 0, "interval": 5 },
+            "homeassistant":{
+                "type": "binary_sensor"
             }
         },
         "DI5": {
@@ -324,17 +274,10 @@
                 "link_to_out": "",
                 "link_to_out_type": ""
             },
-            "map": {
-                "enable": false,
-                "raw_min": 0,
-                "raw_max": 0,
-                "out_min": 0,
-                "out_max": 0,
-                "unit": ""
-            },
-            "mqtt": {
-                "publish": false,
-                "interval": 5
+            "map": { "enable": false, "raw_min": 0, "raw_max": 0, "out_min": 0, "out_max": 0, "unit": "" },
+            "mqtt": { "publish": false, "qos_pub": 0, "interval": 5 },
+            "homeassistant":{
+                "type": "binary_sensor"
             }
         },
         "DI6": {
@@ -347,17 +290,10 @@
                 "link_to_out": "",
                 "link_to_out_type": ""
             },
-            "map": {
-                "enable": false,
-                "raw_min": 0,
-                "raw_max": 0,
-                "out_min": 0,
-                "out_max": 0,
-                "unit": ""
-            },
-            "mqtt": {
-                "publish": false,
-                "interval": 5
+            "map": { "enable": false, "raw_min": 0, "raw_max": 0, "out_min": 0, "out_max": 0, "unit": "" },
+            "mqtt": { "publish": false, "qos_pub": 0, "interval": 5 },
+            "homeassistant":{
+                "type": "binary_sensor"
             }
         },
         "DI7": {
@@ -370,17 +306,10 @@
                 "link_to_out": "",
                 "link_to_out_type": ""
             },
-            "map": {
-                "enable": false,
-                "raw_min": 0,
-                "raw_max": 0,
-                "out_min": 0,
-                "out_max": 0,
-                "unit": ""
-            },
-            "mqtt": {
-                "publish": false,
-                "interval": 5
+            "map": { "enable": false, "raw_min": 0, "raw_max": 0, "out_min": 0, "out_max": 0, "unit": "" },
+            "mqtt": { "publish": false, "qos_pub": 0, "interval": 5 },
+            "homeassistant":{
+                "type": "binary_sensor"
             }
         },
         "DI8": {
@@ -393,17 +322,10 @@
                 "link_to_out": "",
                 "link_to_out_type": ""
             },
-            "map": {
-                "enable": false,
-                "raw_min": 0,
-                "raw_max": 0,
-                "out_min": 0,
-                "out_max": 0,
-                "unit": ""
-            },
-            "mqtt": {
-                "publish": false,
-                "interval": 5
+            "map": { "enable": false, "raw_min": 0, "raw_max": 0, "out_min": 0, "out_max": 0, "unit": "" },
+            "mqtt": { "publish": false, "qos_pub": 0, "interval": 5 },
+            "homeassistant":{
+                "type": "binary_sensor"
             }
         },
         "DI9": {
@@ -416,17 +338,10 @@
                 "link_to_out": "",
                 "link_to_out_type": ""
             },
-            "map": {
-                "enable": false,
-                "raw_min": 0,
-                "raw_max": 0,
-                "out_min": 0,
-                "out_max": 0,
-                "unit": ""
-            },
-            "mqtt": {
-                "publish": false,
-                "interval": 5
+            "map": { "enable": false, "raw_min": 0, "raw_max": 0, "out_min": 0, "out_max": 0, "unit": "" },
+            "mqtt": { "publish": false, "qos_pub": 0, "interval": 5 },
+            "homeassistant":{
+                "type": "binary_sensor"
             }
         },
         "DI10": {
@@ -439,17 +354,10 @@
                 "link_to_out": "",
                 "link_to_out_type": ""
             },
-            "map": {
-                "enable": false,
-                "raw_min": 0,
-                "raw_max": 0,
-                "out_min": 0,
-                "out_max": 0,
-                "unit": ""
-            },
-            "mqtt": {
-                "publish": false,
-                "interval": 5
+            "map": { "enable": false, "raw_min": 0, "raw_max": 0, "out_min": 0, "out_max": 0, "unit": "" },
+            "mqtt": { "publish": false, "qos_pub": 0, "interval": 5 },
+            "homeassistant":{
+                "type": "binary_sensor"
             }
         },
         "DI11": {
@@ -462,17 +370,10 @@
                 "link_to_out": "",
                 "link_to_out_type": ""
             },
-            "map": {
-                "enable": false,
-                "raw_min": 0,
-                "raw_max": 0,
-                "out_min": 0,
-                "out_max": 0,
-                "unit": ""
-            },
-            "mqtt": {
-                "publish": false,
-                "interval": 5
+            "map": { "enable": false, "raw_min": 0, "raw_max": 0, "out_min": 0, "out_max": 0, "unit": "" },
+            "mqtt": { "publish": false, "qos_pub": 0, "interval": 5 },
+            "homeassistant":{
+                "type": "binary_sensor"
             }
         },
         "DI12": {
@@ -485,17 +386,10 @@
                 "link_to_out": "",
                 "link_to_out_type": ""
             },
-            "map": {
-                "enable": false,
-                "raw_min": 0,
-                "raw_max": 0,
-                "out_min": 0,
-                "out_max": 0,
-                "unit": ""
-            },
-            "mqtt": {
-                "publish": false,
-                "interval": 5
+            "map": { "enable": false, "raw_min": 0, "raw_max": 0, "out_min": 0, "out_max": 0, "unit": "" },
+            "mqtt": { "publish": false, "qos_pub": 0, "interval": 5 },
+            "homeassistant":{
+                "type": "binary_sensor"
             }
         },
         "DI13": {
@@ -508,17 +402,10 @@
                 "link_to_out": "",
                 "link_to_out_type": ""
             },
-            "map": {
-                "enable": false,
-                "raw_min": 0,
-                "raw_max": 0,
-                "out_min": 0,
-                "out_max": 0,
-                "unit": ""
-            },
-            "mqtt": {
-                "publish": false,
-                "interval": 5
+            "map": { "enable": false, "raw_min": 0, "raw_max": 0, "out_min": 0, "out_max": 0, "unit": "" },
+            "mqtt": { "publish": false, "qos_pub": 0, "interval": 5 },
+            "homeassistant":{
+                "type": "binary_sensor"
             }
         },
         "DI14": {
@@ -531,17 +418,10 @@
                 "link_to_out": "",
                 "link_to_out_type": ""
             },
-            "map": {
-                "enable": false,
-                "raw_min": 0,
-                "raw_max": 0,
-                "out_min": 0,
-                "out_max": 0,
-                "unit": ""
-            },
-            "mqtt": {
-                "publish": false,
-                "interval": 5
+            "map": { "enable": false, "raw_min": 0, "raw_max": 0, "out_min": 0, "out_max": 0, "unit": "" },
+            "mqtt": { "publish": false, "qos_pub": 0, "interval": 5 },
+            "homeassistant":{
+                "type": "binary_sensor"
             }
         },
         "DI15": {
@@ -554,17 +434,10 @@
                 "link_to_out": "",
                 "link_to_out_type": ""
             },
-            "map": {
-                "enable": false,
-                "raw_min": 0,
-                "raw_max": 0,
-                "out_min": 0,
-                "out_max": 0,
-                "unit": ""
-            },
-            "mqtt": {
-                "publish": false,
-                "interval": 5
+            "map": { "enable": false, "raw_min": 0, "raw_max": 0, "out_min": 0, "out_max": 0, "unit": "" },
+            "mqtt": { "publish": false, "qos_pub": 0, "interval": 5 },
+            "homeassistant":{
+                "type": "binary_sensor"
             }
         },
         "DI16": {
@@ -577,134 +450,80 @@
                 "link_to_out": "",
                 "link_to_out_type": ""
             },
-            "map": {
-                "enable": false,
-                "raw_min": 0,
-                "raw_max": 0,
-                "out_min": 0,
-                "out_max": 0,
-                "unit": ""
-            },
-            "mqtt": {
-                "publish": false,
-                "interval": 5
+            "map": { "enable": false, "raw_min": 0, "raw_max": 0, "out_min": 0, "out_max": 0, "unit": "" },
+            "mqtt": { "publish": false, "qos_pub": 0, "interval": 5 },
+            "homeassistant":{
+                "type": "binary_sensor"
             }
         }
     },
     "AIInt": {
         "AI1": {
             "name": "OutdoorLight",
-            "map": {
-                "raw_min": 0,
-                "raw_max": 3500,
-                "out_min": 100,
-                "out_max": 0,
-                "unit": "%"
-            },
-            "mqtt": {
-                "publish": true,
-                "interval": 15
+            "map": { "raw_min": 100, "raw_max": 3300, "out_min": 100, "out_max": 0, "unit": "%" },
+            "mqtt": { "publish": true, "qos_pub": 0, "interval": 15 },
+            "homeassistant":{
+                "type": "sensor"
             }
         },
         "AI2": {
             "name": "AI2",
-            "map": {
-                "raw_min": 0,
-                "raw_max": 4096,
-                "out_min": 0,
-                "out_max": 3.3,
-                "unit": "V"
-            },
-            "mqtt": {
-                "publish": false,
-                "interval": 2
+            "map": { "raw_min": 0, "raw_max": 4096, "out_min": 0, "out_max": 3.3, "unit": "V" },
+            "mqtt": { "publish": false, "qos_pub": 0, "interval": 2 },
+            "homeassistant":{
+                "type": "sensor"
             }
         },
         "AI3": {
             "name": "AI3",
-            "map": {
-                "raw_min": 0,
-                "raw_max": 4096,
-                "out_min": 0,
-                "out_max": 3.3,
-                "unit": "V"
-            },
-            "mqtt": {
-                "publish": false,
-                "interval": 2
+            "map": { "raw_min": 0, "raw_max": 4096, "out_min": 0, "out_max": 3.3, "unit": "V" },
+            "mqtt": { "publish": false, "qos_pub": 0, "interval": 2 },
+            "homeassistant":{
+                "type": "sensor"
             }
         },
         "AI4": {
             "name": "AI4",
-            "map": {
-                "raw_min": 0,
-                "raw_max": 4096,
-                "out_min": 0,
-                "out_max": 3.3,
-                "unit": "V"
-            },
-            "mqtt": {
-                "publish": false,
-                "interval": 2
+            "map": { "raw_min": 0, "raw_max": 4096, "out_min": 0, "out_max": 3.3, "unit": "V" },
+            "mqtt": { "publish": false, "qos_pub": 0, "interval": 2 },
+            "homeassistant":{
+                "type": "sensor"
             }
         }
     },
     "AIExt": {
         "AI1": {
             "name": "SoilHum",
-            "map": {
-                "raw_min": 0,
-                "raw_max": 32767,
-                "out_min": 0,
-                "out_max": 6.1445,
-                "unit": "V"
-            },
-            "mqtt": {
-                "publish": false,
-                "interval": 2
+            "map": { "raw_min": 0, "raw_max": 32767, "out_min": 0, "out_max": 6.1445, "unit": "%" },
+            "mqtt": { "publish": true, "qos_pub": 0, "interval": 15 },
+            "homeassistant":{
+                "type": "sensor"
             }
         },
         "AI2": {
             "name": "AI2",
-            "map": {
-                "raw_min": 0,
-                "raw_max": 32767,
-                "out_min": 0,
-                "out_max": 6.144,
-                "unit": "V"
-            },
-            "mqtt": {
-                "publish": false,
-                "interval": 2
+            "map": { "raw_min": 0, "raw_max": 32767, "out_min": 0, "out_max": 6.144, "unit": "V" },
+            "mqtt": { "publish": false, "qos_pub": 0, "interval": 2 },
+            "homeassistant":{
+                "type": "sensor"
             }
         },
         "AI3": {
             "name": "AI3",
-            "map": {
-                "raw_min": 0,
-                "raw_max": 32767,
-                "out_min": 0,
-                "out_max": 6.144,
-                "unit": "V"
-            },
-            "mqtt": {
-                "publish": false,
-                "interval": 2
+            "map": { "raw_min": 0, "raw_max": 32767, "out_min": 0, "out_max": 6.144, "unit": "V" },
+            "mqtt": { "publish": false, "qos_pub": 0, "interval": 2 },
+            "homeassistant":{
+                "type": "sensor"
             }
         },
         "AI4": {
             "name": "AI4",
-            "map": {
-                "raw_min": 0,
-                "raw_max": 32767,
-                "out_min": 0,
-                "out_max": 6144,
-                "unit": "mV"
-            },
-            "mqtt": {
-                "publish": false,
-                "interval": 2
+            "map": { "raw_min": 0, "raw_max": 32767, "out_min": 0, "out_max": 6144, "unit": "mV" },
+            "mqtt": { "publish": false, "qos_pub": 0, "interval": 2 },
+            "homeassistant":{
+                "type": "sensor"
             }
         }
     }
 }
+
